@@ -1,0 +1,8 @@
+Compiling test-massign1.pl0
+     4   x := 1 | y := 2;
+******          ^  Error: '|' at line 4 column 9 cannot follow Factor in Term
+     6   x := y | y := x;
+******          ^  Error: '|' at line 6 column 9 cannot follow LValue in Factor
+Parsing complete
+Static semantic analysis complete
+2 errors detected.

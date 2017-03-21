@@ -1,0 +1,13 @@
+Compiling test-massign2.pl0
+     6   x := 1 | y := 2 | z := 3;
+******          ^  Error: '|' at line 6 column 9 cannot follow Factor in Term
+     8   x := y | y := z | z := x;
+******          ^  Error: '|' at line 8 column 9 cannot follow LValue in Factor
+    10   x := x+y | y := y+z | z := z+x;
+******            ^  Error: '|' at line 10 column 11 cannot follow LValue in Factor
+******                       ^  Error: '|' at line 10 column 22 cannot follow LValue in Factor
+    13   x := 6 | b := true;
+******          ^  Error: '|' at line 13 column 9 cannot follow Factor in Term
+Parsing complete
+Static semantic analysis complete
+5 errors detected.

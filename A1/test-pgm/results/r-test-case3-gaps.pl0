@@ -1,0 +1,10 @@
+Compiling test-case3-gaps.pl0
+     6     case x of
+******     ^  Error: 'case' at line 6 column 4 cannot start Statement List
+******            ^  Error: 'of' at line 6 column 11 cannot follow LValue in Assignment
+    11     end;
+******     ^  Error: Parse error, expecting ':=' in Assignment
+******        ^  Error: ';' at line 11 column 7 cannot start Condition
+Parsing complete
+Static semantic analysis complete
+4 errors detected.

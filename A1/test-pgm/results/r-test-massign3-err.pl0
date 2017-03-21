@@ -1,0 +1,10 @@
+Compiling test-massign3-err.pl0
+     4   x := 1 | x := 2;  // x assigned more than once
+******          ^  Error: '|' at line 4 column 9 cannot follow Factor in Term
+     5   x := b | b := x   // both assignments are not type correct
+******          ^  Error: '|' at line 5 column 9 cannot follow LValue in Factor
+Parsing complete
+     5   x := b | b := x   // both assignments are not type correct
+******        ^  Error: can't coerce boolean to int
+Static semantic analysis complete
+3 errors detected.

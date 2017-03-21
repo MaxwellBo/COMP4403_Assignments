@@ -1,0 +1,7 @@
+Compiling test-massign5.pl0
+     8   x := y | y := x | sum := x + y | diff := x - y;
+******          ^  Error: '|' at line 8 column 9 cannot follow LValue in Factor
+******                                  ^  Error: '|' at line 8 column 33 cannot follow LValue in Factor
+Parsing complete
+Static semantic analysis complete
+2 errors detected.

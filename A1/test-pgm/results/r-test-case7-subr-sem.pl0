@@ -1,0 +1,11 @@
+Compiling test-case7-subr-sem.pl0
+     4   case i of
+******   ^  Error: 'case' at line 4 column 2 cannot start Statement
+******          ^  Error: 'of' at line 4 column 9 cannot follow LValue in Assignment
+    11   end
+******   ^  Error: Parse error, expecting ':=' in Assignment
+    12 end
+****** ^  Error: 'end' at line 12 column 0 cannot start Condition
+Parsing complete
+Static semantic analysis complete
+4 errors detected.

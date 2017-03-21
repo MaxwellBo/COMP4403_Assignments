@@ -1,0 +1,11 @@
+Compiling test-case2-order.pl0
+     5     case x of
+******     ^  Error: 'case' at line 5 column 4 cannot start Statement List
+******            ^  Error: 'of' at line 5 column 11 cannot follow LValue in Assignment
+     7     end
+******     ^  Error: Parse error, expecting ':=' in Assignment
+     8   end;
+******   ^  Error: 'end' at line 8 column 2 cannot start Condition
+Parsing complete
+Static semantic analysis complete
+4 errors detected.
