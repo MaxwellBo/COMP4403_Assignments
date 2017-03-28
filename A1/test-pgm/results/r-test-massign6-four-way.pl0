@@ -1,6 +1,0 @@
-Compiling test-massign6-four-way.pl0
-     8   x := y | y := x | z := y | y := z
-******          ^  Error: '|' at line 8 column 9 cannot follow LValue in Factor
-Parsing complete
-Static semantic analysis complete
-1 error detected.

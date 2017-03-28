@@ -1,7 +1,0 @@
-Compiling test-massign7-syn-err.pl0
-     4     x+1 := y | 2 := x;
-******      ^  Error: '+' at line 4 column 5 cannot follow LValue in Assignment
-******              ^  Error: '|' at line 4 column 13 cannot follow LValue in Factor
-Parsing complete
-Static semantic analysis complete
-2 errors detected.

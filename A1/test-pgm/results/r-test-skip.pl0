@@ -1,8 +1,0 @@
-Compiling test-skip.pl0
-     1   skip;
-******   ^  Error: 'skip' at line 1 column 2 cannot start Statement List
-     2   while false do skip
-******                  ^  Error: 'skip' at line 2 column 17 cannot start Statement
-Parsing complete
-Static semantic analysis complete
-2 errors detected.

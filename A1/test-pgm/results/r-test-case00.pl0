@@ -1,8 +1,0 @@
-Compiling test-case00.pl0
-     1   case 1 of
-******   ^  Error: 'case' at line 1 column 2 cannot start Statement List
-     4 end
-****** ^  Error: 'end' at line 4 column 0 cannot follow Compound Statement in Block
-Parsing complete
-Static semantic analysis complete
-2 errors detected.

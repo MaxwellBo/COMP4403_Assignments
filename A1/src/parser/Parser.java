@@ -44,7 +44,8 @@ import tree.StatementNode;
  *  CompoundStatement -> KW_BEGIN StatementList KW_END
  *  StatementList -> Statement { SEMICOLON Statement }
  *  Statement -> WhileStatement | IfStatement | CallStatement | Assignment | 
- *               ReadStatement | WriteStatement | CompoundStatement
+ *               ReadStatement | WriteStatement | CompoundStatement |
+ *               SkipStatement | CaseStatement
  *  Assignment -> LValue ASSIGN Condition
  *  WhileStatement -> KW_WHILE Condition KW_DO Statement
  *  IfStatement -> KW_IF Condition KW_THEN Statement KW_ELSE Statement
