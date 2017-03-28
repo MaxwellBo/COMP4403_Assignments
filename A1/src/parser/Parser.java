@@ -10,11 +10,7 @@ import syms.Scope;
 import syms.SymEntry;
 import syms.SymbolTable;
 import syms.Type;
-import tree.ConstExp;
-import tree.DeclNode;
-import tree.ExpNode;
-import tree.Operator;
-import tree.StatementNode;
+import tree.*;
 
 /**
  * class Parser - PL0 recursive descent parser. To understand how this parser
@@ -74,7 +70,7 @@ public class Parser {
     private final static TokenSet STATEMENT_START_SET =
         LVALUE_START_SET.union( Token.KW_WHILE, Token.KW_IF,
           Token.KW_READ, Token.KW_WRITE,
-          Token.KW_CALL, Token.KW_BEGIN );
+          Token.KW_CALL, Token.KW_BEGIN, Token.KW_SKIP);
     /** Set of tokens that may start a Declaration. */
     private final static TokenSet DECLARATION_START_SET =
         new TokenSet( Token.KW_CONST, Token.KW_TYPE, Token.KW_VAR, 
@@ -434,6 +430,14 @@ public class Parser {
         tokens.endRule( "Compound Statement", recoverSet );
         return result;
     }
+    /** Rule: SkipStatement -> KW_SKIP **/
+    private StatementNode parseSkipStatement( TokenSet recoverSet ) {
+        tokens.beginRule( "Skip Statement", Token.KW_SKIP );
+        Location loc = tokens.getLocation();
+        tokens.match( Token.KW_SKIP ); /* cannot fail */
+        tokens.endRule( "Skip Statement", recoverSet );
+        return new StatementNode.SkipNode( loc );
+    }
     /** Rule: StatementList -> Statement { SEMICOLON Statement }  */
     private StatementNode parseStatementList( TokenSet recoverSet ) {
         // Initialize result to an empty list of statements
@@ -485,6 +489,9 @@ public class Parser {
             break;
         case KW_BEGIN:
             result = parseCompoundStatement( recoverSet ); 
+            break;
+        case KW_SKIP:
+            result = parseSkipStatement( recoverSet );
             break;
         default:
             fatal( "parse Statement " );

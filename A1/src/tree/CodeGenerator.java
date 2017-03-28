@@ -182,6 +182,13 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         endGen( "While" );
         return code;
     }
+    /** Generate code for a "skip" statement. */
+    public Code visitSkipNode(StatementNode.SkipNode node) {
+        beginGen( "Skip" );
+        Code code = new Code();
+        endGen("Skip");
+        return code;
+    }
     /*************************************************
      *  Expression node code generation visit methods
      *************************************************/

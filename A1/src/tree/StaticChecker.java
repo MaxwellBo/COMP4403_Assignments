@@ -183,6 +183,12 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         node.getLoopStmt().accept( this );
         endCheck("While");
     }
+
+    public void visitSkipNode(StatementNode.SkipNode node) {
+        beginCheck("Skip");
+
+        endCheck("Skip");
+    }
     /*************************************************
      *  Expression node static checker visit methods.
      *  The static checking visitor methods for expressions
