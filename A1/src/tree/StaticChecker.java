@@ -116,7 +116,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             if (seen.contains(symbolTableEntry)) {
                 staticError("All of the variables on the left side of a " +
                                 "multiple assignment must be distinct.",
-                        s.getLocation());
+                        s.getVariable().getLocation());
             }
 
             seen.add(symbolTableEntry);
