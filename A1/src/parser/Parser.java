@@ -578,8 +578,11 @@ public class Parser {
         tokens.endRule( "Read Statement", recoverSet );
         // A read statement is treated as an assignment of the value read
         // to the variable. A ReadNode is an expression.
-        return new StatementNode.SingleAssignNode( loc, lval,
-                        new ExpNode.ReadNode( loc ) );
+        StatementNode.AssignmentNode result
+                = new StatementNode.AssignmentNode( tokens.getLocation() );
+        result.addAssignment(new StatementNode.SingleAssignNode( loc, lval,
+                new ExpNode.ReadNode( loc ) ));
+        return result;
     }
     /** Rule: WriteStatement -> KW_WRITE Exp 
      * @requires tokens.isMatch( Token.KW_WRITE ) */
