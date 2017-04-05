@@ -124,13 +124,13 @@ public abstract class StatementNode {
 
     /** Tree node representing multiple assignment statements. */
     public static class AssignmentNode extends StatementNode {
-        private List<StatementNode> assignments;
+        private List<SingleAssignNode> assignments;
 
         public AssignmentNode( Location loc ) {
             super( loc );
             this.assignments = new ArrayList<>();
         }
-        public void addAssignment( StatementNode s ) {
+        public void addAssignment( SingleAssignNode s ) {
             assignments.add( s );
         }
         @Override
@@ -141,7 +141,7 @@ public abstract class StatementNode {
         public Code genCode( StatementTransform<Code> visitor ) {
             return visitor.visitAssignmentNode( this );
         }
-        public List<StatementNode> getAssignments() {
+        public List<SingleAssignNode> getAssignments() {
             return assignments;
         }
         @Override

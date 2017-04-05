@@ -1,4 +1,6 @@
 package tree;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
@@ -96,27 +98,34 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
 
     /** Code generation for an assignment statement. */
     public Code visitAssignmentNode( StatementNode.AssignmentNode node ) {
-        // TODO: Don't naively generate sub-assignments in sequence
         beginGen( "Assignment" );
         Code code = new Code();
-        for( StatementNode s : node.getAssignments() ) {
-            code.append( s.genCode( this ) );
+
+        for( SingleAssignNode s : node.getAssignments() ) {
+            /* Generate code to evaluate the expression */
+            code.append(s.getExp().genCode( this ));
         }
+
+        List<SingleAssignNode> reversed = new ArrayList<>(node.getAssignments());
+        Collections.reverse(reversed);
+
+        for( SingleAssignNode s : reversed ) {
+            /* Generate the code to load the address of the variable */
+            code.append( s.getVariable().genCode( this ) );
+            /* Generate the store based on the type/size of value */
+            code.genStore( (Type.ReferenceType)s.getVariable().getType() );
+        }
+
         endGen( "Assignment" );
         return code;
     }
 
     /** Code generation for an single assign */
     public Code visitSingleAssignNode(SingleAssignNode node) {
+        // TODO: Maybe remove this
         beginGen( "SingleAssign" );
-        /* Generate code to evaluate the expression */
-        Code code = node.getExp().genCode( this );
-        /* Generate the code to load the address of the variable */
-        code.append( node.getVariable().genCode( this ) );
-        /* Generate the store based on the type/size of value */
-        code.genStore( (Type.ReferenceType)node.getVariable().getType() );
         endGen( "SingleAssign" );
-        return code;
+        return new Code();
     }
     /** Generate code for a "write" statement. */
     public Code visitWriteNode( StatementNode.WriteNode node ) {

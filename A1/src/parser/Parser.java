@@ -510,7 +510,7 @@ public class Parser {
             return result;
         }
         assert tokens.isIn( LVALUE_START_SET );
-        StatementNode s =
+        StatementNode.SingleAssignNode s =
                 parseSingleAssign( recoverSet.union( Token.BAR ) );
         result.addAssignment( s );
         while( tokens.isMatch( Token.BAR ) ) {
