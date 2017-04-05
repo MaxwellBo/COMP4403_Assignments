@@ -1,7 +1,5 @@
 package tree;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 import source.Errors;
 import java_cup.runtime.ComplexSymbolFactory.Location;
@@ -95,11 +93,35 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     }
 
     public void visitAssignmentNode(StatementNode.AssignmentNode node) {
-        // TODO: Ensure that "All of the variables on the left side of a multiple assignment [are] distinct."
         beginCheck("Assignment");
+
         for( StatementNode s : node.getAssignments()) {
             s.accept( this );
         }
+
+        Set<SymEntry.VarEntry> seen = new HashSet<>();
+
+        for( SingleAssignNode s : node.getAssignments()) {
+            if ( !(s.getVariable().getType() instanceof Type.ReferenceType )) {
+                // Do nothing, the error should have already been thrown by the
+                // SingleAssign node checker immediately above
+                // We just need this check so we can continue to coerce even
+                // when errors occur
+                continue;
+            }
+
+            SymEntry.VarEntry symbolTableEntry = ((ExpNode.VariableNode)s.getVariable())
+                    .getVariable();
+
+            if (seen.contains(symbolTableEntry)) {
+                staticError("All of the variables on the left side of a " +
+                                "multiple assignment must be distinct.",
+                        s.getLocation());
+            }
+
+            seen.add(symbolTableEntry);
+        }
+
         endCheck("Assignment");
     }
 
