@@ -122,17 +122,16 @@ public abstract class StatementNode {
         }
     }
 
-    /** Tree node representing an assignment statement. */
+    /** Tree node representing multiple assignment statements. */
     public static class AssignmentNode extends StatementNode {
-        /** Tree node for expression on left hand side of an assignment. */
-        private ExpNode lValue;
-        /** Tree node for the expression to be assigned. */
-        private ExpNode exp;
+        private List<StatementNode> assignments;
 
-        public AssignmentNode( Location loc, ExpNode variable, ExpNode exp ) {
+        public AssignmentNode( Location loc ) {
             super( loc );
-            this.lValue = variable;
-            this.exp = exp;
+            this.assignments = new ArrayList<>();
+        }
+        public void addAssignment( StatementNode s ) {
+            assignments.add( s );
         }
         @Override
         public void accept( StatementVisitor visitor ) {
@@ -141,6 +140,41 @@ public abstract class StatementNode {
         @Override
         public Code genCode( StatementTransform<Code> visitor ) {
             return visitor.visitAssignmentNode( this );
+        }
+        public List<StatementNode> getAssignments() {
+            return assignments;
+        }
+        @Override
+        public String toString( int level) {
+            String result = "";
+            String sep = "";
+            for( StatementNode s : assignments ) {
+                result += sep + s.toString( level );
+                sep = " | " + newLine(level);
+            }
+            return result;
+        }
+    }
+
+    /** Tree node representing an assignment statement. */
+    public static class SingleAssignNode extends AssignmentNode {
+        /** Tree node for expression on left hand side of an assignment. */
+        private ExpNode lValue;
+        /** Tree node for the expression to be assigned. */
+        private ExpNode exp;
+
+        public SingleAssignNode(Location loc, ExpNode variable, ExpNode exp ) {
+            super( loc );
+            this.lValue = variable;
+            this.exp = exp;
+        }
+        @Override
+        public void accept( StatementVisitor visitor ) {
+            visitor.visitSingleAssignNode( this );
+        }
+        @Override
+        public Code genCode( StatementTransform<Code> visitor ) {
+            return visitor.visitSingleAssignNode( this );
         }
         public ExpNode getVariable() {
             return lValue;

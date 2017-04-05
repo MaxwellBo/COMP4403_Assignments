@@ -1,9 +1,6 @@
 package tree;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.Stack;
 
 import source.Errors;
@@ -98,7 +95,16 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     }
 
     public void visitAssignmentNode(StatementNode.AssignmentNode node) {
+        // TODO: Ensure that "All of the variables on the left side of a multiple assignment [are] distinct."
         beginCheck("Assignment");
+        for( StatementNode s : node.getAssignments()) {
+            s.accept( this );
+        }
+        endCheck("Assignment");
+    }
+
+    public void visitSingleAssignNode(SingleAssignNode node) {
+        beginCheck("SingleAssign");
         // Check the left side left value.
         ExpNode left = node.getVariable().transform( this );
         node.setVariable( left );
@@ -120,7 +126,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             Type baseType = ((Type.ReferenceType)lvalType).getBaseType();
             node.setExp( baseType.coerceExp( exp ) );
         }
-        endCheck("Assignment");
+        endCheck("SingleAssign");
     }
 
     public void visitWriteNode(StatementNode.WriteNode node) {
