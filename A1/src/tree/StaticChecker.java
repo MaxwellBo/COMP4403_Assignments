@@ -117,7 +117,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                             .getIdent();
 
             if (seen.contains(symbolTableEntry)) {
-                staticError(symbolTableEntry + " assigned more that once",
+                staticError(symbolTableEntry + " assigned more than once",
                         s.getVariable().getLocation());
             }
 

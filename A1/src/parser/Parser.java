@@ -523,7 +523,7 @@ public class Parser {
     }
     /** Rule: SingleAssign -> LValue ASSIGN Condition */
     private StatementNode.SingleAssignNode parseSingleAssign(TokenSet recoverSet) {
-        if( !tokens.beginRule( "SingleAssign", LVALUE_START_SET, recoverSet ) ) {
+        if( !tokens.beginRule( "Assignment", LVALUE_START_SET, recoverSet ) ) {
             return new StatementNode.SingleAssignNode( tokens.getLocation(),
                     new ExpNode.ErrorNode( tokens.getLocation() ), 
                     new ExpNode.ErrorNode( tokens.getLocation() ) );
@@ -537,7 +537,7 @@ public class Parser {
         Location loc = tokens.getLocation();
         tokens.match( Token.ASSIGN, CONDITION_START_SET );
         ExpNode right = parseCondition( recoverSet );
-        tokens.endRule( "SingleAssign", recoverSet );
+        tokens.endRule( "Assignment", recoverSet );
         return new StatementNode.SingleAssignNode( loc, left, right );
     }
     /** Rule: WhileStatement -> KW_WHILE Condition KW_DO Statement 
