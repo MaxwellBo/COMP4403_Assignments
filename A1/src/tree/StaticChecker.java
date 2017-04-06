@@ -99,7 +99,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             s.accept( this );
         }
 
-        Set<SymEntry.VarEntry> seen = new HashSet<>();
+        Set<String> seen = new HashSet<>();
 
         for( SingleAssignNode s : node.getAssignments()) {
             if ( !(s.getVariable().getType() instanceof Type.ReferenceType )) {
@@ -110,12 +110,14 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                 continue;
             }
 
-            SymEntry.VarEntry symbolTableEntry = ((ExpNode.VariableNode)s.getVariable())
-                    .getVariable();
+            String symbolTableEntry =
+                    ((ExpNode.VariableNode)s
+                            .getVariable())
+                            .getVariable()
+                            .getIdent();
 
             if (seen.contains(symbolTableEntry)) {
-                staticError("All of the variables on the left side of a " +
-                                "multiple assignment must be distinct.",
+                staticError(symbolTableEntry + " assigned more that once",
                         s.getVariable().getLocation());
             }
 
