@@ -43,7 +43,11 @@ import tree.*;
  *  Statement -> WhileStatement | IfStatement | CallStatement | Assignment | 
  *               ReadStatement | WriteStatement | CompoundStatement |
  *               SkipStatement | CaseStatement
- *  Assignment -> LValue ASSIGN Condition
+ *  SkipStatement -> KW_SKIP
+ *  Assignment -> SingleAssign { BAR SingleAssign }
+ *  SingleAssign -> LValue ASSIGN Condition
+ *  CaseStatement -> KW_CASE Condition KW_OF { CaseBranch } [ KW_DEFAULT StatementList ] KW_END
+ *  CaseBranch -> KW_WHEN Constant COLON StatementList
  *  WhileStatement -> KW_WHILE Condition KW_DO Statement
  *  IfStatement -> KW_IF Condition KW_THEN Statement KW_ELSE Statement
  *  CallStatement -> KW_CALL IDENTIFIER LPAREN ActualParameters RPAREN
