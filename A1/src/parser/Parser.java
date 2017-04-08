@@ -469,6 +469,7 @@ public class Parser {
     /** Rule: Statement -> Assignment | WhileStatement | IfStatement
      *                  | ReadStatement | WriteStatement | CallStatement
      *                  | CompoundStatement | SkipStatement | CaseStatement
+     *                  | SkipStatement | CaseStatement
      */
     private StatementNode parseStatement( TokenSet recoverSet ) {
         StatementNode result;
