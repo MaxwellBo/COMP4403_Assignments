@@ -105,8 +105,8 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             if ( !(s.getVariable().getType() instanceof Type.ReferenceType )) {
                 // Do nothing, the error should have already been thrown by the
                 // SingleAssign node checker immediately above
-                // We just need this check so we can continue to coerce even
-                // when errors occur
+                // We just need this check so our coercions don't cause the
+                // program to explode
                 continue;
             }
 
