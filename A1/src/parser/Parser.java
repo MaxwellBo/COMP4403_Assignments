@@ -566,7 +566,8 @@ public class Parser {
 
         while ( tokens.isIn( CASE_BRANCH_START_SET )) {
             StatementNode caseBranch = parseCaseBranch( recoverSet
-                            .union( Token.KW_DEFAULT, Token.KW_END ));
+                            .union( Token.KW_DEFAULT, Token.KW_END )
+                            .union( CASE_BRANCH_START_SET ));
             result.addCase( caseBranch );
         }
 
