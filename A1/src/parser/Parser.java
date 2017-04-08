@@ -571,7 +571,8 @@ public class Parser {
 
         if ( tokens.isMatch( Token.KW_DEFAULT )) {
             tokens.match(Token.KW_DEFAULT, STATEMENT_START_SET);
-            StatementNode defaultStatement = parseStatementList( recoverSet.union(Token.KW_END));
+            StatementNode defaultStatement = parseStatementList( recoverSet
+                    .union( Token.KW_END ));
             result.setDefaultBranchStatement( defaultStatement );
         }
 
