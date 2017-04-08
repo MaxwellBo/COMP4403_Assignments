@@ -212,6 +212,20 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         endGen("Skip");
         return code;
     }
+    /** Generate code for a "case" statement. */
+    public Code visitCaseNode(StatementNode.CaseNode node) {
+        beginGen( "Case" );
+        Code code = new Code();
+        endGen("Case");
+        return code;
+    }
+    /** Generate code for a "case" statement. */
+    public Code visitCaseBranchNode(StatementNode.CaseBranchNode node) {
+        beginGen( "CaseBranch" );
+        Code code = new Code();
+        endGen("CaseBranch");
+        return code;
+    }
     /*************************************************
      *  Expression node code generation visit methods
      *************************************************/

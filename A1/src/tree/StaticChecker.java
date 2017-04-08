@@ -219,6 +219,18 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
         endCheck("Skip");
     }
+
+    public void visitCaseNode(StatementNode.CaseNode node) {
+        beginCheck("Case");
+        // TODO:
+        endCheck("Case");
+    }
+
+    public void visitCaseBranchNode(StatementNode.CaseBranchNode node) {
+        beginCheck("CaseBranch");
+        // TODO:
+        endCheck("CaseBranch");
+    }
     /*************************************************
      *  Expression node static checker visit methods.
      *  The static checking visitor methods for expressions

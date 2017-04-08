@@ -294,6 +294,82 @@ public abstract class StatementNode {
             return result;
         }
     }
+    /** Tree node representing a case statement, with sub-cases */
+    public static class CaseNode extends StatementNode {
+        private ExpNode target;
+        private List<StatementNode> cases;
+        private StatementNode def; // default is a reserved keyword in Java :(
+
+        public CaseNode( Location loc, ExpNode target ) {
+            super( loc );
+            this.target = target;
+            this.cases = new ArrayList<>();
+        }
+        public void addCase( StatementNode s ) {
+            cases.add( s );
+        }
+        public void setDefaultBranchStatement( StatementNode def ) {
+            this.def = def;
+        }
+        @Override
+        public void accept( StatementVisitor visitor ) {
+            visitor.visitCaseNode( this );
+        }
+        @Override
+        public Code genCode( StatementTransform<Code> visitor ) {
+            return visitor.visitCaseNode( this );
+        }
+        public ExpNode getTarget() {
+            return target;
+        }
+        public List<StatementNode> getCases() {
+            return cases;
+        }
+        public StatementNode getDefault() {
+            return def;
+        }
+        @Override
+        public String toString( int level) {
+            // TODO:
+//            String result = "";
+//            String sep = "";
+//            for( StatementNode s : statements ) {
+//                result += sep + s.toString( level );
+//                sep = ";" + newLine(level);
+//            }
+            return "";
+        }
+    }    /** Tree node representing a case branch. */
+    public static class CaseBranchNode extends StatementNode {
+        private ConstExp constant;
+        private StatementNode statements;
+
+        public CaseBranchNode( Location loc,
+                               ConstExp constant, StatementNode statements) {
+            super( loc );
+            this.constant = constant;
+            this.statements = statements;
+        }
+        @Override
+        public void accept( StatementVisitor visitor ) {
+            visitor.visitCaseBranchNode( this );
+        }
+        @Override
+        public Code genCode( StatementTransform<Code> visitor ) {
+            return visitor.visitCaseBranchNode( this );
+        }
+        public ConstExp getConstant() {
+            return constant;
+        }
+        public StatementNode getStatements() {
+            return statements;
+        }
+        @Override
+        public String toString( int level ) {
+             // TODO
+            return "";
+        }
+    }
     /** Tree node representing an "if" statement. */
     public static class IfNode extends StatementNode {
         private ExpNode condition;

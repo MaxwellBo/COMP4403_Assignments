@@ -30,4 +30,8 @@ public interface  StatementTransform<ResultType> {
     ResultType visitWhileNode( StatementNode.WhileNode node);
 
     ResultType visitSkipNode( StatementNode.SkipNode node);
+
+    ResultType visitCaseNode( StatementNode.CaseNode node);
+
+    ResultType visitCaseBranchNode( StatementNode.CaseBranchNode node);
 }
