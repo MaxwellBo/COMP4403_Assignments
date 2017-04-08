@@ -563,19 +563,19 @@ public class Parser {
 
         tokens.match( Token.KW_OF, CASE_BRANCH_START_SET );
 
-        while (tokens.isIn(CASE_BRANCH_START_SET)) {
+        while ( tokens.isIn( CASE_BRANCH_START_SET )) {
             StatementNode caseBranch = parseCaseBranch( recoverSet
-                            .union( Token.KW_DEFAULT, Token.KW_END )
-                            .union( STATEMENT_START_SET ));
+                            .union( Token.KW_DEFAULT, Token.KW_END ));
             result.addCase( caseBranch );
         }
 
-        if ( tokens.isMatch(Token.KW_DEFAULT )) {
+        if ( tokens.isMatch( Token.KW_DEFAULT )) {
+            tokens.match(Token.KW_DEFAULT, STATEMENT_START_SET);
             StatementNode defaultStatement = parseStatementList( recoverSet.union(Token.KW_END));
             result.setDefaultBranchStatement( defaultStatement );
         }
 
-        tokens.match(Token.KW_END);
+        tokens.match( Token.KW_END );
         tokens.endRule( "Case Statement", recoverSet );
         return result;
     }
@@ -590,7 +590,6 @@ public class Parser {
         Location loc = tokens.getLocation();
         ConstExp con = parseConstant( recoverSet
                 .union( Token.COLON )
-                .union( STATEMENT_START_SET )
         );
         tokens.match( Token.COLON, STATEMENT_START_SET );
         StatementNode statements = parseStatementList( recoverSet );
