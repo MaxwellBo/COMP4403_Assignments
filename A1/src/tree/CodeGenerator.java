@@ -1,8 +1,6 @@
 package tree;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import machine.Operation;
 import source.Errors;
@@ -215,14 +213,102 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     /** Generate code for a "case" statement. */
     public Code visitCaseNode(StatementNode.CaseNode node) {
         beginGen( "Case" );
-        Code code = new Code();
+
+        Code entryCollector = new Code();
+        Code branchCollector = new Code();
+        Code tableCollector = new Code();
+
+        // Arrange our cases in order
+        List<CaseBranchNode> branches = new ArrayList<>(node.getBranches());
+        Collections.sort(branches, new Comparator<CaseBranchNode>() {
+            @Override
+            public int compare(CaseBranchNode o1, CaseBranchNode o2) {
+                return Integer.compare(o1.getLabel().getValue(), o2.getLabel().getValue()).;
+            }
+        });
+
+        // TODO: Figure out this horseshit
+        // We'll need this later on
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+
+        if (branches.size() != 0) {
+            min = branches.get(0).getLabel().getValue();
+            max = branches.get(branches.size() - 1).getLabel().getValue();
+        }
+
+        int range = max - min;
+
+        List<ConstExp> branchLabels = new ArrayList<>();
+        List<Code> branchCodes = new ArrayList<>();
+
+        for (CaseBranchNode b : branches) {
+            branchLabels.add(b.getLabel());
+            branchCodes.add(b.genCode( this ));
+        }
+
+        if (node.getDefault() != null) {
+            branchCodes.add(node.getDefault().genCode( this ));
+        }
+
+        while (branchLabels.size() != 0) {
+            ConstExp label = branchLabels.remove(0);
+            Code branchCode = branchCodes.remove(0);
+
+            // Table entries that we have to jump over
+            // e.g. min = 1, max = 5, label = 2 --> entries of 3, 4 and 5 to jump over
+            int entriesOffset = (range - (label.getValue() - min)) * Code.SIZE_JUMP_ALWAYS;
+            // Branch code that we have to jump over
+            int branchCodeOffset = branchCollector.size();
+
+            int inOffset = entriesOffset + branchCodeOffset;
+
+            // Setup: Pad NOOPs to what we expect them to be
+            // e.g min = 2, max = 5, label = 4, I expect there to be 2 entries
+            while (!(tableCollector.size() == (label.getValue() - min) * Code.SIZE_JUMP_ALWAYS)) {
+
+                if (node.getDefault() != null) {
+                    // We want to jump to the default branch, which should always
+                    // be at the end of branchCodes
+                    Code def = new ArrayList<>(branchCodes).remove(branchCodes.size() - 1);
+
+                    // Find out how many we have to jump over to get to it
+                    int offset = branchCodes.stream().mapToInt(c -> c.size()).sum();
+                    tableCollector.genJumpAlways(offset);
+                } else {
+                    tableCollector.generateOp(Operation.NO_OP);
+                }
+            }
+
+            // Rig up the jump IN
+            tableCollector.genJumpAlways(inOffset);
+
+            // Rig up the branch
+            branchCollector.append(branchCode);
+
+            // Gen the offset for the goto OUT
+            // All the remaining code and all their goto OUT's
+            int outOffset = branchCodes.stream()
+                    .mapToInt(c -> c.size()) // size of the branch code
+                    .sum() + (branchCodes.size() * Code.SIZE_JUMP_ALWAYS);
+            //                            ^ misleading, no. of elements in the list
+
+            // Rig up the jump OUT
+            branchCollector.genJumpAlways(outOffset);
+        }
+        Code code = node.getTarget().genCode( this );
+
         endGen("Case");
+
+        code.append(entryCollector);
+        code.append(tableCollector);
+        code.append(branchCollector);
         return code;
     }
     /** Generate code for a "case" statement. */
     public Code visitCaseBranchNode(StatementNode.CaseBranchNode node) {
         beginGen( "CaseBranch" );
-        Code code = new Code();
+        Code code = node.getStatements().genCode( this );
         endGen("CaseBranch");
         return code;
     }

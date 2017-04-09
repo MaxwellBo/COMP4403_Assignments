@@ -223,7 +223,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
         Set<String> seen = new HashSet<>();
 
-        for ( StatementNode.CaseBranchNode c : node.getCases()) {
+        for ( StatementNode.CaseBranchNode c : node.getBranches()) {
             c.accept( this );
 
             Type targetType = node.getTarget().getType();

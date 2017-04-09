@@ -325,7 +325,7 @@ public abstract class StatementNode {
         public void setTarget(ExpNode target) {
             this.target = target;
         }
-        public List<CaseBranchNode> getCases() {
+        public List<CaseBranchNode> getBranches() {
             return cases;
         }
         public StatementNode getDefault() {
