@@ -2,6 +2,7 @@ package tree;
 import java.util.*;
 
 import machine.Operation;
+import machine.StackMachine;
 import source.Errors;
 import syms.SymEntry;
 import syms.Type;
@@ -227,8 +228,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
             }
         });
 
-        // TODO: Figure out this horseshit
-        // We'll need this later on
+        // We'll use this to see if our labels are able to match the specified condition
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
 
@@ -237,6 +237,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
             max = branches.get(branches.size() - 1).getLabel().getValue();
         }
 
+        // We'll use this to set the size of the table
         int range = max - min;
 
         List<ConstExp> branchLabels = new ArrayList<>();
@@ -247,13 +248,21 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
             branchCodes.add(b.genCode( this ));
         }
 
+        // In the event of all cases falling through, we want to go to the
+        // same code - either defaulting or exploding
         if (node.getDefault() != null) {
-            branchCodes.add(node.getDefault().genCode( this ));
+            branchCodes.add(node.getDefault().genCode(this));
+        } else {
+            Code runtimeError = new Code();
+            runtimeError.genLoadConstant(StackMachine.CASE_LABEL_MISSING);
+            runtimeError.generateOp(Operation.STOP);
+            branchCodes.add(runtimeError);
         }
 
         while (branchLabels.size() != 0) {
             ConstExp label = branchLabels.remove(0);
             Code branchCode = branchCodes.remove(0);
+            assert branchLabels.size() == branchCodes.size() - 1;
 
             // Table entries that we have to jump over
             // e.g. min = 1, max = 5, label = 2 --> entries of 3, 4 and 5 to jump over
@@ -268,19 +277,17 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
             while (!(tableCollector.size() == (label.getValue() - min) * Code.SIZE_JUMP_ALWAYS)) {
                 assert label.getValue() - min != 0;
 
-                if (node.getDefault() != null) {
-                    assert branchLabels.size() == branchCodes.size() - 1;
-                    // We want to jump to the default branch, which should always
-                    // be at the end of branchCodes
-                    Code def = new ArrayList<>(branchCodes).remove(branchCodes.size() - 1);
+                // We want to jump to the default branch, which should always
+                // be at the end of branchCodes
+                List<Code> toGenerate = new ArrayList<>(branchCodes);
+                toGenerate.remove(branchCodes.size() - 1);
 
-                    // Find out how many we have to jump over to get to it
-                    int offset = branchCodes.stream().mapToInt(c -> c.size()).sum();
-                    tableCollector.genJumpAlways(offset);
-                } else {
-                    assert branchLabels.size() == branchCodes.size();
-                    tableCollector.generateOp(Operation.NO_OP);
-                }
+
+                int offset = branchCollector.size()
+                           + branchCodes.stream().mapToInt(c -> c.size()).sum()
+                           + ((range - 1) * Code.SIZE_JUMP_ALWAYS) - tableCollector.size();
+
+                tableCollector.genJumpAlways(offset);
             }
 
             // Rig up the jump IN
@@ -300,13 +307,36 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
             branchCollector.genJumpAlways(outOffset);
         }
 
+
+        // READ THIS LAST
+        Code branch = new Code();
+        branch.generateOp(Operation.BR_FALSE); // branch to explode
+        branch.generateOp(Operation.BR); // jump into the table
+        branch.genLoadConstant(-min); // Normalize all jumps onto the jump table
+        branch.generateOp(Operation.ADD);
+        branch.genLoadConstant(Code.SIZE_JUMP_ALWAYS);
+        branch.generateOp(Operation.MPY);
+        branch.generateOp(Operation.BR); // Jump onto the table
+
+        // READ THIS FIRST
+        // Check if the exp is within the min and max ranges of the labels
+        // if not, branch to default or explode; if so, branch into the table
+        Code rangeCheck = new Code();
         Code condition = node.getTarget().genCode( this );
-        entryCollector.append(condition);
-        entryCollector.genLoadConstant(-min); // Normalize all jumps onto the jump table
-        entryCollector.generateOp(Operation.ADD);
-        entryCollector.genLoadConstant(Code.SIZE_JUMP_ALWAYS);
-        entryCollector.generateOp(Operation.MPY);
-        entryCollector.generateOp(Operation.BR); // Jump onto the table
+        rangeCheck.append(condition); // make three copies of the condition
+        rangeCheck.generateOp(Operation.DUP);
+        rangeCheck.generateOp(Operation.DUP);
+        rangeCheck.genLoadConstant(max);
+        rangeCheck.generateOp(Operation.LESSEQ); // is leq than max
+        rangeCheck.generateOp(Operation.SWAP);
+        rangeCheck.genLoadConstant(min);
+        rangeCheck.generateOp(Operation.SWAP);
+        rangeCheck.generateOp(Operation.LESSEQ); // is greq min
+        rangeCheck.generateOp(Operation.AND); // is bounded
+        rangeCheck.genLoadConstant(branch.size()); // TODO: Explode
+
+        entryCollector.append(rangeCheck);
+        entryCollector.append(branch);
 
         endGen("Case");
 
