@@ -565,7 +565,7 @@ public class Parser {
         tokens.match( Token.KW_OF, CASE_BRANCH_START_SET );
 
         while ( tokens.isIn( CASE_BRANCH_START_SET )) {
-            StatementNode caseBranch = parseCaseBranch( recoverSet
+            StatementNode.CaseBranchNode caseBranch = parseCaseBranch( recoverSet
                             .union( Token.KW_DEFAULT, Token.KW_END )
                             .union( CASE_BRANCH_START_SET ));
             result.addCase( caseBranch );
@@ -583,21 +583,23 @@ public class Parser {
         return result;
     }
     /** Rule: CaseBranch -> KW_WHEN Constant COLON StatementList */
-    private StatementNode parseCaseBranch(TokenSet recoverSet) {
+    private StatementNode.CaseBranchNode parseCaseBranch(TokenSet recoverSet) {
         if( ! tokens.beginRule( "Case Branch", Token.KW_WHEN, recoverSet ) ) {
-            return new StatementNode.ErrorNode( tokens.getLocation() );
+//            return new StatementNode.CaseBranchNode( tokens.getLocation(),
+//                    new ConstExp.ErrorNode( tokens.getLocation(), TODO),
+//                    new StatementNode.ErrorNode( tokens.getLocation() ) );
         }
 
         assert tokens.isMatch( Token.KW_WHEN );
         tokens.match( Token.KW_WHEN ); /* cannot fail */
         Location loc = tokens.getLocation();
-        ConstExp con = parseConstant( recoverSet
+        ConstExp label = parseConstant( recoverSet
                 .union( Token.COLON )
         );
         tokens.match( Token.COLON, STATEMENT_START_SET );
         StatementNode statements = parseStatementList( recoverSet );
         tokens.endRule( "Case Branch", recoverSet );
-        return new StatementNode.CaseBranchNode( loc, con, statements );
+        return new StatementNode.CaseBranchNode( loc, label, statements );
     }
     /** Rule: WhileStatement -> KW_WHILE Condition KW_DO Statement
      * @requires tokens.isMatch( Token.KW_WHILE ) */

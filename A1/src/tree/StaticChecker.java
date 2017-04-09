@@ -95,13 +95,11 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     public void visitAssignmentNode(StatementNode.AssignmentNode node) {
         beginCheck("Assignment");
 
-        for( StatementNode s : node.getAssignments()) {
-            s.accept( this );
-        }
-
         Set<String> seen = new HashSet<>();
 
         for( SingleAssignNode s : node.getAssignments()) {
+            s.accept( this );
+
             if ( !(s.getVariable().getType() instanceof Type.ReferenceType )) {
                 // Do nothing, the error should have already been thrown by the
                 // SingleAssign node checker immediately above
@@ -110,13 +108,9 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                 continue;
             }
 
-            String symbolTableEntry =
-                    ((ExpNode.VariableNode)s
-                            .getVariable())
-                            .getVariable()
-                            .getIdent();
+            String symbolTableEntry = s.getVariableName();
 
-            if (seen.contains(symbolTableEntry)) {
+            if ( seen.contains( symbolTableEntry ) ) {
                 staticError(symbolTableEntry + " assigned more than once",
                         s.getVariable().getLocation());
             }
@@ -222,13 +216,44 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
     public void visitCaseNode(StatementNode.CaseNode node) {
         beginCheck("Case");
-        // TODO:
+
+        // Check the case to be matched on
+        ExpNode exp = Type.optDereferenceExp(node.getTarget().transform( this ));
+        node.setTarget( exp );
+
+        Set<Integer> seen = new HashSet<>();
+
+        for ( StatementNode.CaseBranchNode c : node.getCases()) {
+            c.accept( this );
+
+            Type targetType = node.getTarget().getType();
+            Type labelType = c.getLabel().getType();
+            int labelValue = c.getLabel().getValue();
+
+            if ( !targetType.containsElement(labelType, labelValue) ) {
+                staticError( "case label type does not match case expression type",
+                            c.getLabel().loc );
+            }
+
+            if ( seen.contains(labelValue) ) {
+                staticError( "repeated label in case branch",
+                        c.getLabel().loc);
+            }
+
+            seen.add(labelValue);
+        }
+
+        if ( node.getDefault() != null ) {
+            node.getDefault().accept(this );
+        }
+
         endCheck("Case");
     }
 
     public void visitCaseBranchNode(StatementNode.CaseBranchNode node) {
         beginCheck("CaseBranch");
-        // TODO:
+        // Check the statement list to be executed on a successful match.
+        node.getStatements().accept( this );
         endCheck("CaseBranch");
     }
     /*************************************************

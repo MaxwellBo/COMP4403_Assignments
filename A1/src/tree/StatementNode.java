@@ -297,7 +297,7 @@ public abstract class StatementNode {
     /** Tree node representing a case statement, with sub-cases */
     public static class CaseNode extends StatementNode {
         private ExpNode target;
-        private List<StatementNode> cases;
+        private List<CaseBranchNode> cases;
         private StatementNode def; // default is a reserved keyword in Java :(
 
         public CaseNode( Location loc, ExpNode target ) {
@@ -305,7 +305,7 @@ public abstract class StatementNode {
             this.target = target;
             this.cases = new ArrayList<>();
         }
-        public void addCase( StatementNode s ) {
+        public void addCase( CaseBranchNode s ) {
             cases.add( s );
         }
         public void setDefaultBranchStatement( StatementNode def ) {
@@ -322,7 +322,10 @@ public abstract class StatementNode {
         public ExpNode getTarget() {
             return target;
         }
-        public List<StatementNode> getCases() {
+        public void setTarget(ExpNode target) {
+            this.target = target;
+        }
+        public List<CaseBranchNode> getCases() {
             return cases;
         }
         public StatementNode getDefault() {
@@ -341,13 +344,13 @@ public abstract class StatementNode {
         }
     }    /** Tree node representing a case branch. */
     public static class CaseBranchNode extends StatementNode {
-        private ConstExp constant;
+        private ConstExp label;
         private StatementNode statements;
 
         public CaseBranchNode( Location loc,
-                               ConstExp constant, StatementNode statements) {
+                               ConstExp label, StatementNode statements) {
             super( loc );
-            this.constant = constant;
+            this.label = label;
             this.statements = statements;
         }
         @Override
@@ -358,8 +361,11 @@ public abstract class StatementNode {
         public Code genCode( StatementTransform<Code> visitor ) {
             return visitor.visitCaseBranchNode( this );
         }
-        public ConstExp getConstant() {
-            return constant;
+        public ConstExp getLabel() {
+            return label;
+        }
+        public void setLabel(ConstExp label) {
+            this.label = label;
         }
         public StatementNode getStatements() {
             return statements;
