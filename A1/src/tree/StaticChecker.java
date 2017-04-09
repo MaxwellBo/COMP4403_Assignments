@@ -221,7 +221,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         ExpNode exp = Type.optDereferenceExp(node.getTarget().transform( this ));
         node.setTarget( exp );
 
-        Set<Integer> seen = new HashSet<>();
+        Set<String> seen = new HashSet<>();
 
         for ( StatementNode.CaseBranchNode c : node.getCases()) {
             c.accept( this );
@@ -235,12 +235,15 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                             c.getLabel().loc );
             }
 
-            if ( seen.contains(labelValue) ) {
+
+            // This stops us from getting confused between 0 and false, 1 and true
+            String taggedLabelValue = c.getLabel().getType().getName() + labelValue;
+            if ( seen.contains(taggedLabelValue) ) {
                 staticError( "repeated label in case branch",
                         c.getLabel().loc);
             }
 
-            seen.add(labelValue);
+            seen.add(taggedLabelValue);
         }
 
         if ( node.getDefault() != null ) {
