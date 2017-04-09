@@ -584,11 +584,7 @@ public class Parser {
     }
     /** Rule: CaseBranch -> KW_WHEN Constant COLON StatementList */
     private StatementNode.CaseBranchNode parseCaseBranch(TokenSet recoverSet) {
-        if( ! tokens.beginRule( "Case Branch", Token.KW_WHEN, recoverSet ) ) {
-//            return new StatementNode.CaseBranchNode( tokens.getLocation(),
-//                    new ConstExp.ErrorNode( tokens.getLocation(), TODO),
-//                    new StatementNode.ErrorNode( tokens.getLocation() ) );
-        }
+        tokens.beginRule( "Case Branch", Token.KW_WHEN, recoverSet );
 
         assert tokens.isMatch( Token.KW_WHEN );
         tokens.match( Token.KW_WHEN ); /* cannot fail */
