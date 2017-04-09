@@ -1,6 +1,5 @@
 package tree;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import machine.Operation;
 import source.Errors;
@@ -214,6 +213,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     public Code visitCaseNode(StatementNode.CaseNode node) {
         beginGen( "Case" );
 
+        Code code = new Code();
         Code entryCollector = new Code();
         Code branchCollector = new Code();
         Code tableCollector = new Code();
@@ -223,7 +223,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         Collections.sort(branches, new Comparator<CaseBranchNode>() {
             @Override
             public int compare(CaseBranchNode o1, CaseBranchNode o2) {
-                return Integer.compare(o1.getLabel().getValue(), o2.getLabel().getValue()).;
+                return Integer.compare(o1.getLabel().getValue(), o2.getLabel().getValue());
             }
         });
 
@@ -266,8 +266,10 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
             // Setup: Pad NOOPs to what we expect them to be
             // e.g min = 2, max = 5, label = 4, I expect there to be 2 entries
             while (!(tableCollector.size() == (label.getValue() - min) * Code.SIZE_JUMP_ALWAYS)) {
+                assert label.getValue() - min != 0;
 
                 if (node.getDefault() != null) {
+                    assert branchLabels.size() == branchCodes.size() - 1;
                     // We want to jump to the default branch, which should always
                     // be at the end of branchCodes
                     Code def = new ArrayList<>(branchCodes).remove(branchCodes.size() - 1);
@@ -276,6 +278,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
                     int offset = branchCodes.stream().mapToInt(c -> c.size()).sum();
                     tableCollector.genJumpAlways(offset);
                 } else {
+                    assert branchLabels.size() == branchCodes.size();
                     tableCollector.generateOp(Operation.NO_OP);
                 }
             }
@@ -296,7 +299,14 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
             // Rig up the jump OUT
             branchCollector.genJumpAlways(outOffset);
         }
-        Code code = node.getTarget().genCode( this );
+
+        Code condition = node.getTarget().genCode( this );
+        entryCollector.append(condition);
+        entryCollector.genLoadConstant(-min); // Normalize all jumps onto the jump table
+        entryCollector.generateOp(Operation.ADD);
+        entryCollector.genLoadConstant(Code.SIZE_JUMP_ALWAYS);
+        entryCollector.generateOp(Operation.MPY);
+        entryCollector.generateOp(Operation.BR); // Jump onto the table
 
         endGen("Case");
 
