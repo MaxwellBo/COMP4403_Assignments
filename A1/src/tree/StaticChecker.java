@@ -235,7 +235,6 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                             c.getLabel().loc );
             }
 
-
             // This stops us from getting confused between 0 and false, 1 and true
             String taggedLabelValue = c.getLabel().getType().getName() + labelValue;
             if ( seen.contains(taggedLabelValue) ) {
