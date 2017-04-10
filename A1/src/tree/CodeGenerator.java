@@ -268,7 +268,8 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
             int labelValue = branchLabels.remove(0);
             Code code = branchCodes.remove(0);
 
-            labelValueToOffset.put(labelValue, branchCollector.size());
+            labelValueToOffset.put(labelValue - min, branchCollector.size());
+            errors.debugMessage("***" + labelValueToOffset.toString());
 
             // Put down the branch code
             branchCollector.append(code);
@@ -294,9 +295,10 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
 
                 // Find out whether we're jumping from a label to a branch
                 // or an invalid label to a runtime error or default branch
+                errors.debugMessage("***" + i);
                 int overBranchesOffset = labelValueToOffset.containsKey(i) ?
                         labelValueToOffset.get(i) :
-                        labelValueToOffset.get(Integer.MAX_VALUE); // get the default branch or explode
+                        labelValueToOffset.get(Integer.MAX_VALUE - min); // get the default branch or explode
 
                 // Put down the jump in
                 tableCollector.genJumpAlways(overRemainingTableOffset + overBranchesOffset);
@@ -330,7 +332,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         rangeCheck.generateOp(Operation.AND); // is bounded
         rangeCheck.genLoadConstant(branch.size()
                 + tableCollector.size()
-                + labelValueToOffset.get(Integer.MAX_VALUE));
+                + labelValueToOffset.get(Integer.MAX_VALUE - min));
         // Jump over the table and straight into the default / explode branch
 
         entryCollector.append(rangeCheck);
