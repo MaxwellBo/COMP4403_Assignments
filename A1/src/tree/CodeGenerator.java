@@ -268,6 +268,8 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
             int labelValue = branchLabels.remove(0);
             Code code = branchCodes.remove(0);
 
+            // Normalize branch labels (-min) so that they can be jumped into
+            // from index 0
             labelValueToOffset.put(labelValue - min, branchCollector.size());
 
             // Put down the branch code
