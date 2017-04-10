@@ -333,14 +333,12 @@ public abstract class StatementNode {
         }
         @Override
         public String toString( int level) {
-            // TODO:
-//            String result = "";
-//            String sep = "";
-//            for( StatementNode s : statements ) {
-//                result += sep + s.toString( level );
-//                sep = ";" + newLine(level);
-//            }
-            return "";
+            String result = "CASE " + target.toString();
+            String sep = newLine(level + 1);
+            for( StatementNode s : cases ) {
+                result += sep + s.toString( level );
+            }
+            return result + newLine(level) + "END";
         }
     }    /** Tree node representing a case branch. */
     public static class CaseBranchNode extends StatementNode {
@@ -372,8 +370,7 @@ public abstract class StatementNode {
         }
         @Override
         public String toString( int level ) {
-             // TODO
-            return "";
+            return "WHEN " + label.toString() + ": " + statements.toString();
         }
     }
     /** Tree node representing an "if" statement. */
