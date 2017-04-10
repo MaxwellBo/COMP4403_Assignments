@@ -269,7 +269,6 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
             Code code = branchCodes.remove(0);
 
             labelValueToOffset.put(labelValue - min, branchCollector.size());
-            errors.debugMessage("***" + labelValueToOffset.toString());
 
             // Put down the branch code
             branchCollector.append(code);
@@ -295,7 +294,6 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
 
                 // Find out whether we're jumping from a label to a branch
                 // or an invalid label to a runtime error or default branch
-                errors.debugMessage("***" + i);
                 int overBranchesOffset = labelValueToOffset.containsKey(i) ?
                         labelValueToOffset.get(i) :
                         labelValueToOffset.get(Integer.MAX_VALUE - min); // get the default branch or explode
@@ -309,7 +307,6 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         // because the abort into default / explode branch has to
         // jump over this code
         Code branch = new Code();
-        branch.generateOp(Operation.BR_FALSE); // branch to explode
         branch.genLoadConstant(-min); // Normalize all jumps onto the jump table
         branch.generateOp(Operation.ADD);
         branch.genLoadConstant(Code.SIZE_JUMP_ALWAYS);
@@ -330,7 +327,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         rangeCheck.generateOp(Operation.SWAP);
         rangeCheck.generateOp(Operation.LESSEQ); // is greq min
         rangeCheck.generateOp(Operation.AND); // is bounded
-        rangeCheck.genLoadConstant(branch.size()
+        rangeCheck.genJumpIfFalse(branch.size()
                 + tableCollector.size()
                 + labelValueToOffset.get(Integer.MAX_VALUE - min));
         // Jump over the table and straight into the default / explode branch
