@@ -1,4 +1,6 @@
 <project name="PL0-Compiler" default="build" basedir=".">
+	<taskdef name="JFlexTask" classname="jflex.anttask.JFlexTask"/>
+	<taskdef name="CUPTask" classname="java_cup.anttask.CUPTask"/>
 
 <!--
 	<property name="home" value="${basedir}" />
