@@ -341,4 +341,117 @@ public abstract class ExpNode {
             return "WidenSubrange(" + exp + ":" + getType() + ")";
         }
     }
+
+    /** Tree node representing field access on a record */
+    public static class FieldDereferenceNode extends ExpNode {
+        /** LValue to be dereferenced */
+        private ExpNode leftValue;
+        /** Name of the field */
+        private String id;
+
+        public FieldDereferenceNode( Location loc, ExpNode leftValue, String id ) {
+            super( loc );
+            this.leftValue = leftValue;
+            this.id = id;
+        }
+
+        @Override
+        public ExpNode transform(ExpTransform<ExpNode> visitor) {
+            // TODO
+            return null;
+        }
+
+        @Override
+        public Code genCode(ExpTransform<Code> visitor) {
+            // TODO
+            return null;
+        }
+
+        @Override
+        public String toString() {
+            // TODO
+            return super.toString();
+        }
+    }
+
+    /** Tree node representing dereferencing a pointer */
+    public static class PointerDereferenceNode extends ExpNode {
+        /** LValue to be dereferenced */
+        private ExpNode leftValue;
+
+        public PointerDereferenceNode( Location loc, ExpNode leftValue ) {
+            super( loc );
+            this.leftValue = leftValue;
+        }
+
+        @Override
+        public ExpNode transform(ExpTransform<ExpNode> visitor) {
+            // TODO
+            return null;
+        }
+
+        @Override
+        public Code genCode(ExpTransform<Code> visitor) {
+            // TODO
+            return null;
+        }
+
+        @Override
+        public String toString() {
+            // TODO
+            return super.toString();
+        }
+    }
+
+    /** Tree node representing a "new" expression */
+    public static class NewNode extends ExpNode {
+
+        public NewNode( Location loc, Type type ) {
+            super( loc ); // TODO: Does type get dumped here?
+        }
+
+        @Override
+        public ExpNode transform(ExpTransform<ExpNode> visitor) {
+            // TODO
+            return null;
+        }
+
+        @Override
+        public Code genCode(ExpTransform<Code> visitor) {
+            // TODO
+            return null;
+        }
+
+        @Override
+        public String toString() {
+            // TODO
+            return super.toString();
+        }
+    }
+
+    /** Tree node representing a "new" expression */
+    public static class RecordConstructorNode extends ExpNode {
+
+        public RecordConstructorNode( Location loc, Type type, List<ExpNode> recordFields) {
+            super( loc ); // TODO: Does type get dumped here?
+        }
+
+        @Override
+        public ExpNode transform(ExpTransform<ExpNode> visitor) {
+            // TODO
+            return null;
+        }
+
+        @Override
+        public Code genCode(ExpTransform<Code> visitor) {
+            // TODO
+            return null;
+        }
+
+        @Override
+        public String toString() {
+            // TODO
+            return super.toString();
+        }
+    }
 }
