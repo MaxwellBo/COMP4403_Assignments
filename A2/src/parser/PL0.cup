@@ -173,6 +173,11 @@ non terminal Operator         Relation,
                               MulOp,
                               UnaryOperator;
 non terminal ExpNode          LValue;
+non terminal List<Type.Field>      FieldList;
+non terminal                  Fields;
+non terminal Type.Field       Field;
+non terminal RecordFields     RecordFields;
+non terminal List<ExpNode>    ExpList;
 
 /**-------------------------------------------------------------*
  *------------------------ GRAMMAR RULES -----------------------*
@@ -337,6 +342,19 @@ Type ::= TypeIdentifier:type
         {:
             RESULT = new Type.SubrangeType( lo, hi );
         :}
+    | KW_RECORD FieldList:fs KW_END
+        {:
+            Type.RecordType rt = new Type.RecordType();
+            rt.setLocation(fsxleft);
+            for (Type.Field f : fs) {
+                rt.add(f);
+            }
+            RESULT = rt;
+        :}
+    | POINTER TypeIdentifier:t
+        {:
+            RESULT = new Type.PointerType( t );
+        :}
     | error:err
         {:
             RESULT = Type.ERROR_TYPE;
@@ -469,6 +487,14 @@ LValue ::= IDENTIFIER:id
         {:
             RESULT = new ExpNode.IdentifierNode( idxleft, id );
         :}
+    |  LValue:lval PERIOD IDENTIFIER:id
+        {:
+            RESULT = new ExpNode.FieldDereferenceNode( lval, id );
+        :}
+    |  LValue:lval POINTER
+        {:
+            RESULT = new ExpNode.PointerDereferenceNode( lval );
+        :}
     ;
 
 /* To allow for adding logical expressions. */
@@ -584,6 +610,14 @@ Factor ::= PLUS Factor:e
         {:
             RESULT = new ExpNode.ErrorNode( exleft );
         :}
+    | KW_NEW TypeIdentifier:t
+        {:
+            RESULT = new ExpNode.NewNode ( txleft, t );
+        :}
+    | TypeIdentifier:t LCURLY RecordFields:rfs RCURLY
+        {:
+            RESULT = new ExpNode.RecordNode ( txleft, t, rfs );
+        :}
     ;
 UnaryOperator ::= MINUS:op
         {:
@@ -591,3 +625,54 @@ UnaryOperator ::= MINUS:op
         :}
     ;
 
+FieldList ::= Fields:fields
+        {:
+            RESULT = fields;
+        :}
+    | /* empty */
+        {:
+            RESULT = new ArrayList<Type.Field>();
+        :}
+    ;
+
+Fields ::= Fields:fields SEMICOLON Field:field
+        {:
+            fields.add(field);
+            RESULT = fields;
+        :}
+    | Field:field
+        {:
+            List<Type.Field> fields = new ArrayList<>();
+            fields.add(field);
+            RESULT = fields;
+        :}
+    ;
+
+Field ::= IDENTIFIER:id COLON TypeIdentifier:t
+        {:
+            RESULT = new Type.Field( idxleft, id, t );
+        :}
+    ;
+
+RecordFields ::= ExpList:fields
+        {:
+            RESULT = fields;
+        :}
+    | /* empty */
+        {:
+            RESULT = new ArrayList<ExpNode>();
+        :}
+    ;
+
+ExpList ::= ExpList:fields COMMA Condition:field
+        {:
+            fields.add(field);
+            RESULT = fields;
+        :}
+    | Condition:field
+        {:
+            List<ExpNode> fields = new ArrayList<>();
+            fields.add(field);
+            RESULT = fields;
+        :}
+    ;
