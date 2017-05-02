@@ -343,6 +343,44 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         return code;
     }
 
+    /** Generate code to access a field of a record allocated on the heap */
+    public Code visitFieldDereferenceNode(ExpNode.FieldDereferenceNode node) {
+        beginGen("FieldDereference");
+        // TODO: This might not be right
+        Code code = new Code();
+        endGen("FieldDereference");
+        return code;
+    }
+
+    /** Generate code to dereference a pointer on the heap */
+    public Code visitPointerDereferenceNode(ExpNode.PointerDereferenceNode node) {
+        beginGen("PointerDereferenceNode");
+        // TODO: This might not be right
+        Code code = node.getLeftValue().genCode( this );
+        endGen("PointerDereferenceNode");
+        return code;
+    }
+
+    /** Generate code to allocate a pointer on the heap */
+    public Code visitNewNode(ExpNode.NewNode node) {
+        beginGen("New" );
+        // TODO: The type identifier might have to be transformed
+        // before we know the size of the shit that's getting stored
+        Code code = new Code();
+        code.genLoadConstant(node.getTypeIdentifier().getSpace());
+        code.generateOp(Operation.ALLOC_HEAP);
+        endGen( "New" );
+        return code;
+    }
+
+    /** Generate code to construct a record on the heap */
+    public Code visitRecordConstructorNode(ExpNode.RecordConstructorNode node) {
+        beginGen("RecordConstructor");
+        Code code = new Code();
+        endGen("RecordConstructor");
+        return code;
+    }
+
     /**************************** Support Methods ***************************/
     /** Push current node onto debug rule stack and increase debug level */
     private void beginGen( String node ) {

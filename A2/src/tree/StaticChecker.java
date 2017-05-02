@@ -360,6 +360,39 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         return node;
     }
 
+    public ExpNode visitFieldDereferenceNode(ExpNode.FieldDereferenceNode node) {
+        beginCheck("FieldDereference");
+        // TODO
+        // Nothing to do.
+        endCheck("FieldDereference");
+        return node;
+    }
+
+    public ExpNode visitPointerDereferenceNode(ExpNode.PointerDereferenceNode node) {
+        beginCheck("PointerDereference");
+        // TODO
+        // Nothing to do.
+        endCheck("PointerDereference");
+        return node;
+    }
+
+    public ExpNode visitNewNode(ExpNode.NewNode node) {
+        beginCheck("New");
+        // TODO
+        // Nothing to do.
+        endCheck("New");
+        return node;
+    }
+
+    public ExpNode visitRecordConstructorNode(ExpNode.RecordConstructorNode node) {
+        beginCheck("RecordConstructor");
+        // TODO
+        // Nothing to do.
+        endCheck("RecordConstructor");
+        return node;
+    }
+
+
     /**************************** Support Methods ***************************/
     /** Push current node onto debug rule stack and increase debug level */
     private void beginCheck( String node ) {

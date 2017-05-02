@@ -384,6 +384,10 @@ public abstract class ExpNode {
             this.leftValue = leftValue;
         }
 
+        public ExpNode getLeftValue() {
+            return leftValue;
+        }
+
         @Override
         public ExpNode transform(ExpTransform<ExpNode> visitor) {
             // TODO
@@ -405,9 +409,16 @@ public abstract class ExpNode {
 
     /** Tree node representing a "new" expression */
     public static class NewNode extends ExpNode {
+        private Type typeIdentifier;
 
-        public NewNode( Location loc, Type type ) {
-            super( loc ); // TODO: Does type get dumped here?
+        public NewNode( Location loc, Type typeIdentifier ) {
+            super( loc, new Type.PointerType(typeIdentifier) );
+            this.typeIdentifier = typeIdentifier;
+        }
+
+        // TODO: We might not need this later on
+        public Type getTypeIdentifier() {
+            return typeIdentifier;
         }
 
         @Override
@@ -418,8 +429,7 @@ public abstract class ExpNode {
 
         @Override
         public Code genCode(ExpTransform<Code> visitor) {
-            // TODO
-            return null;
+            return visitor.visitNewNode( this );
         }
 
         @Override
@@ -432,8 +442,11 @@ public abstract class ExpNode {
     /** Tree node representing a "new" expression */
     public static class RecordConstructorNode extends ExpNode {
 
-        public RecordConstructorNode( Location loc, Type type, List<ExpNode> recordFields) {
-            super( loc ); // TODO: Does type get dumped here?
+        Type typeIdentifier;
+
+        public RecordConstructorNode( Location loc, Type typeIdentifier, List<ExpNode> recordFields) {
+            super( loc );
+            this.typeIdentifier = typeIdentifier;
         }
 
         @Override

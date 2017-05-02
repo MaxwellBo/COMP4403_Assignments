@@ -1,5 +1,5 @@
 type
-  R = record 
+  R = record
         x: int;
         next: List
       end;

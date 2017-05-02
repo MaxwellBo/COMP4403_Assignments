@@ -136,7 +136,7 @@ public abstract class Type
      * @throws IncompatibleTypes if cannot coerce
      */
     public ExpNode coerceToType( ExpNode exp ) throws IncompatibleTypes {
-        errors.debugMessage( "Coercing " + exp + ":" + exp.getType().getName() + 
+        errors.debugMessage( "Coercing " + exp + ":" + exp.getType().getName() +
                 " to " + this.getName() );
         errors.incDebug();
         ExpNode newExp = exp;
