@@ -1,11 +1,8 @@
 package tree;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Stack;
 
 import machine.Operation;
-import machine.StackMachine;
 import source.Errors;
 import syms.SymEntry;
 import syms.Type;
@@ -344,11 +341,11 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     }
 
     /** Generate code to access a field of a record allocated on the heap */
-    public Code visitFieldDereferenceNode(ExpNode.FieldDereferenceNode node) {
-        beginGen("FieldDereference");
+    public Code visitFieldAccessNode(ExpNode.FieldAccessNode node) {
+        beginGen("FieldAccess");
         // TODO: This might not be right
         Code code = new Code();
-        endGen("FieldDereference");
+        endGen("FieldAccess");
         return code;
     }
 

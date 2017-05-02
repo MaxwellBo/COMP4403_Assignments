@@ -342,10 +342,10 @@ Type ::= TypeIdentifier:type
         {:
             RESULT = new Type.SubrangeType( lo, hi );
         :}
-    | KW_RECORD FieldList:fs KW_END
+    | KW_RECORD:r FieldList:fs KW_END
         {:
             Type.RecordType rt = new Type.RecordType();
-            rt.setLocation(fsxleft);
+            rt.setLocation(rxleft);
             for (Type.Field f : fs) {
                 rt.add(f);
             }
@@ -489,7 +489,7 @@ LValue ::= IDENTIFIER:id
         :}
     |  LValue:lval PERIOD IDENTIFIER:id
         {:
-            RESULT = new ExpNode.FieldDereferenceNode( lvalxleft, lval, id );
+            RESULT = new ExpNode.FieldAccessNode( lvalxleft, lval, id );
         :}
     |  LValue:lval POINTER
         {:

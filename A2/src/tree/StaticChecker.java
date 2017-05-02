@@ -1,9 +1,8 @@
 package tree;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import source.Errors;
 import java_cup.runtime.ComplexSymbolFactory.Location;
@@ -14,6 +13,8 @@ import syms.Type;
 import syms.Type.IncompatibleTypes;
 import tree.DeclNode.DeclListNode;
 import tree.StatementNode.*;
+
+import static syms.Predefined.NIL_TYPE;
 
 /** class StaticSemantics - Performs the static semantic checks on
  * the abstract syntax tree using a visitor pattern to traverse the tree.
@@ -360,34 +361,91 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         return node;
     }
 
-    public ExpNode visitFieldDereferenceNode(ExpNode.FieldDereferenceNode node) {
-        beginCheck("FieldDereference");
-        // TODO
-        // Nothing to do.
-        endCheck("FieldDereference");
+    public ExpNode visitFieldAccessNode(ExpNode.FieldAccessNode node) {
+        beginCheck("FieldAccess");
+
+        // Check the left value referred to by this field access node
+        ExpNode lVal = node.getLeftValue().transform( this );
+        node.setLeftValue( lVal );
+
+        Type.RecordType recordType = lVal.getType().getRecordType();
+
+        // `getRecordType` returns null if the type wasn't an instanceof `RecordType`
+        if (recordType != null) {
+            Type fieldType = recordType.getFieldType(node.getId());
+            if (fieldType != Type.ERROR_TYPE) {
+                node.setType(new Type.ReferenceType(fieldType));
+            } else {
+                // TODO: Or do we poison the node?
+                staticError("TODO: (Proper error message name", node.getLocation());
+            }
+        } else {
+            staticError("TODO: (Proper error message name)", node.getLocation());
+        }
+        endCheck("FieldAccess");
         return node;
     }
 
     public ExpNode visitPointerDereferenceNode(ExpNode.PointerDereferenceNode node) {
         beginCheck("PointerDereference");
-        // TODO
-        // Nothing to do.
+        // Check the left value referred to by this pointer dereference node
+        ExpNode lVal = node.getLeftValue().transform( this );
+        node.setLeftValue( lVal );
+        /* The type of the dereference node is a reference to the base type of
+         * its left value */
+        Type lValueType = lVal.getType();
+
+        if( lValueType instanceof Type.ReferenceType ) {
+            node.setType(new Type.ReferenceType(lValueType.optDereferenceType())); // not optional here
+        } else if( lValueType != Type.ERROR_TYPE ) { // avoid cascading errors
+            staticError( "cannot dereference an expression which isn't a reference",
+                    node.getLocation() );
+        }
         endCheck("PointerDereference");
         return node;
     }
 
     public ExpNode visitNewNode(ExpNode.NewNode node) {
         beginCheck("New");
-        // TODO
-        // Nothing to do.
+        String typeId = node.getTypeIdentifier().getName();
+        node.setType(symtab.getCurrentScope().lookupType(typeId).getType());
         endCheck("New");
         return node;
     }
 
     public ExpNode visitRecordConstructorNode(ExpNode.RecordConstructorNode node) {
         beginCheck("RecordConstructor");
-        // TODO
-        // Nothing to do.
+        // Check the expressions in the record constructor referred to by this
+        // record constructor node
+        List<ExpNode> constructorParameters =
+                node.getRecordFields()
+                        .stream()
+                        .map(x -> x.transform(this))
+                        .collect(Collectors.toList());
+        node.setRecordFields(constructorParameters);
+
+        String typeId = node.getTypeIdentifier().getName();
+        Type.RecordType recordType = symtab.getCurrentScope().lookupType(typeId).getType().getRecordType();
+        // TODO: Check that this isn't null
+
+        // HERE BE DRAGONS
+        // syms(id) = TypeEntry(RecordType([ (id_1, T_1), (id_2, T_2), ... (id_n, T_n) ]))
+        //                     ∀ j ∈ 1..n   •      syms  ⊢   ej : Tj
+        // ------------------------------------------------------------------------------------
+        // syms   ⊢   id{ e_1, e_2, ... e_n } : RecordType([ (id_1, T_1), (id_2, T_2), ... (id_n, T_n) ])
+        List<Type.Field> fields = recordType.getFieldList();
+        List<ExpNode> e  = constructorParameters;
+        int n = fields.size();
+        for (int j = 0; j < n; j++) {
+            ExpNode e_j = e.get(j);
+            Type T_j = fields.get(j).getType();
+
+            // TODO: What happens if this fails?
+            assert e_j.getType().equals(T_j);
+        }
+
+        node.setType(recordType);
+
         endCheck("RecordConstructor");
         return node;
     }

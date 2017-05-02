@@ -1,5 +1,6 @@
 package tree;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -343,28 +344,38 @@ public abstract class ExpNode {
     }
 
     /** Tree node representing field access on a record */
-    public static class FieldDereferenceNode extends ExpNode {
+    public static class FieldAccessNode extends ExpNode {
         /** LValue to be dereferenced */
         private ExpNode leftValue;
         /** Name of the field */
         private String id;
 
-        public FieldDereferenceNode( Location loc, ExpNode leftValue, String id ) {
+        public FieldAccessNode(Location loc, ExpNode leftValue, String id ) {
             super( loc );
             this.leftValue = leftValue;
             this.id = id;
         }
 
+        public ExpNode getLeftValue() {
+            return leftValue;
+        }
+
+        public void setLeftValue(ExpNode leftValue) {
+            this.leftValue = leftValue;
+        }
+
+        public String getId() {
+            return id;
+        }
+
         @Override
         public ExpNode transform(ExpTransform<ExpNode> visitor) {
-            // TODO
-            return null;
+            return visitor.visitFieldAccessNode(this);
         }
 
         @Override
         public Code genCode(ExpTransform<Code> visitor) {
-            // TODO
-            return null;
+            return visitor.visitFieldAccessNode(this);
         }
 
         @Override
@@ -388,16 +399,18 @@ public abstract class ExpNode {
             return leftValue;
         }
 
+        public void setLeftValue(ExpNode leftValue) {
+            this.leftValue = leftValue;
+        }
+
         @Override
         public ExpNode transform(ExpTransform<ExpNode> visitor) {
-            // TODO
-            return null;
+            return visitor.visitPointerDereferenceNode(this);
         }
 
         @Override
         public Code genCode(ExpTransform<Code> visitor) {
-            // TODO
-            return null;
+            return visitor.visitPointerDereferenceNode(this);
         }
 
         @Override
@@ -412,24 +425,22 @@ public abstract class ExpNode {
         private Type typeIdentifier;
 
         public NewNode( Location loc, Type typeIdentifier ) {
-            super( loc, new Type.PointerType(typeIdentifier) );
+            super( loc );
             this.typeIdentifier = typeIdentifier;
         }
 
-        // TODO: We might not need this later on
         public Type getTypeIdentifier() {
             return typeIdentifier;
         }
 
         @Override
         public ExpNode transform(ExpTransform<ExpNode> visitor) {
-            // TODO
-            return null;
+            return visitor.visitNewNode(this);
         }
 
         @Override
         public Code genCode(ExpTransform<Code> visitor) {
-            return visitor.visitNewNode( this );
+            return visitor.visitNewNode(this);
         }
 
         @Override
@@ -443,22 +454,35 @@ public abstract class ExpNode {
     public static class RecordConstructorNode extends ExpNode {
 
         Type typeIdentifier;
+        List<ExpNode> recordFields;
 
         public RecordConstructorNode( Location loc, Type typeIdentifier, List<ExpNode> recordFields) {
             super( loc );
             this.typeIdentifier = typeIdentifier;
+            this.recordFields = recordFields;
         }
+
+        public Type getTypeIdentifier() {
+            return typeIdentifier;
+        }
+
+        public List<ExpNode> getRecordFields() {
+            return new ArrayList<>(recordFields);
+        }
+
+        public void setRecordFields(List<ExpNode> recordFields) {
+            this.recordFields = recordFields;
+        }
+
 
         @Override
         public ExpNode transform(ExpTransform<ExpNode> visitor) {
-            // TODO
-            return null;
+            return visitor.visitRecordConstructorNode(this);
         }
 
         @Override
         public Code genCode(ExpTransform<Code> visitor) {
-            // TODO
-            return null;
+            return visitor.visitRecordConstructorNode(this);
         }
 
         @Override
