@@ -376,11 +376,13 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             if (fieldType != Type.ERROR_TYPE) {
                 node.setType(new Type.ReferenceType(fieldType));
             } else {
-                // TODO: Or do we poison the node?
-                staticError("TODO: (Proper error message name", node.getLocation());
+                staticError("Record type "
+                        + recordType.getName()
+                        + " does not have field"
+                        + node.getId(), node.getLocation());
             }
         } else {
-            staticError("TODO: (Proper error message name)", node.getLocation());
+            staticError(node.getType().getName() + " is not a record type", node.getLocation());
         }
         endCheck("FieldAccess");
         return node;
@@ -415,36 +417,41 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
     public ExpNode visitRecordConstructorNode(ExpNode.RecordConstructorNode node) {
         beginCheck("RecordConstructor");
-        // Check the expressions in the record constructor referred to by this
-        // record constructor node
-        List<ExpNode> constructorParameters =
-                node.getRecordFields()
-                        .stream()
-                        .map(x -> x.transform(this))
-                        .collect(Collectors.toList());
-        node.setRecordFields(constructorParameters);
-
-        String typeId = node.getTypeIdentifier().getName();
-        Type.RecordType recordType = symtab.getCurrentScope().lookupType(typeId).getType().getRecordType();
-        // TODO: Check that this isn't null
-
-        // HERE BE DRAGONS
         // syms(id) = TypeEntry(RecordType([ (id_1, T_1), (id_2, T_2), ... (id_n, T_n) ]))
         //                     ∀ j ∈ 1..n   •      syms  ⊢   ej : Tj
         // ------------------------------------------------------------------------------------
         // syms   ⊢   id{ e_1, e_2, ... e_n } : RecordType([ (id_1, T_1), (id_2, T_2), ... (id_n, T_n) ])
-        List<Type.Field> fields = recordType.getFieldList();
-        List<ExpNode> e  = constructorParameters;
-        int n = fields.size();
-        for (int j = 0; j < n; j++) {
-            ExpNode e_j = e.get(j);
-            Type T_j = fields.get(j).getType();
 
-            // TODO: What happens if this fails?
-            assert e_j.getType().equals(T_j);
+        // Let "{ e_1, e_2, ... e_n }" (RecordFields) be `e`
+        List<ExpNode> e = node.getRecordFields();
+
+        // Check the expressions in the record constructor referred to by this
+        // record constructor node
+        e = e
+                .stream()
+                .map(x -> x.transform(this))
+                .collect(Collectors.toList());
+
+        String typeId = node.getTypeIdentifier().getName();
+        Type.RecordType recordType = symtab.getCurrentScope().lookupType(typeId).getType().getRecordType();
+
+        // TODO: Do I have to check that both the arg list and the record type are the same size?
+
+        if (recordType != null) {
+            List<Type.Field> fields = recordType.getFieldList();
+            int n = fields.size();
+            for (int j = 0; j < n; j++) {
+                ExpNode e_j = e.get(j);
+                Type T_j = fields.get(j).getType();
+
+                e.set(j, T_j.coerceExp(e_j));
+            }
+        } else {
+            staticError("cannot construct a record with a type identifier that is not a record type", node.getLocation());
         }
 
         node.setType(recordType);
+        node.setRecordFields(e);
 
         endCheck("RecordConstructor");
         return node;
