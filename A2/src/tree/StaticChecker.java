@@ -376,10 +376,14 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             if (fieldType != Type.ERROR_TYPE) {
                 node.setType(new Type.ReferenceType(fieldType));
             } else {
+                // Why did I do this
+                Location accessLocation = Location.clone(node.getLocation());
+                accessLocation.move(0, recordType.getName().length(), 0);
+
                 staticError("Record type "
                         + recordType.getName()
                         + " does not have field"
-                        + node.getId(), node.getLocation());
+                        + node.getId(), accessLocation);
             }
         } else {
             staticError(node.getType().getName() + " is not a record type", node.getLocation());
@@ -395,11 +399,11 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         node.setLeftValue( lVal );
         /* The type of the dereference node is a reference to the base type of
          * its left value */
-        Type lValueType = lVal.getType();
+        Type.PointerType pointerType = lVal.getType().getPointerType();
 
-        if( lValueType instanceof Type.ReferenceType ) {
-            node.setType(new Type.ReferenceType(lValueType.optDereferenceType())); // not optional here
-        } else if( lValueType != Type.ERROR_TYPE ) { // avoid cascading errors
+        if (pointerType != null) {
+            node.setType(pointerType.getBaseType());
+        } else {
             staticError( "cannot dereference an expression which isn't a reference",
                     node.getLocation() );
         }
