@@ -445,9 +445,11 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
                     e.set(j, T_j.coerceExp(e_j));
                 }
+            } else if (recordType.getFieldList().size() > e.size()) {
+                staticError("Too few expressions for fields in record",
+                        node.getLocation());
             } else {
-                staticError("the number of arguments provided to the record constructor"
-                                + " is not equal to the arity of the record constructor",
+                staticError("Too many expressions for fields in record",
                         node.getLocation());
             }
         }
