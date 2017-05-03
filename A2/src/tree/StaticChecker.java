@@ -400,7 +400,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         Type.PointerType pointerType = lVal.getType().getPointerType();
 
         if (pointerType != null) {
-            node.setType(pointerType.getBaseType());
+            node.setType(new Type.ReferenceType(pointerType.getBaseType()));
         } else {
             staticError( "type must be a pointer",
                     node.getLocation() );
