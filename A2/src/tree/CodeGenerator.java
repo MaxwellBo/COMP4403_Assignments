@@ -343,8 +343,10 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     /** Generate code to access a field of a record allocated on the heap */
     public Code visitFieldAccessNode(ExpNode.FieldAccessNode node) {
         beginGen("FieldAccess");
-        // TODO: This might not be right
-        Code code = new Code();
+        Code code = node.getLeftValue().genCode(this);
+        int offset = node.getLeftValue().getType().getRecordType().getOffset(node.getId());
+        code.genLoadConstant(offset);
+        code.generateOp(Operation.ADD);
         endGen("FieldAccess");
         return code;
     }

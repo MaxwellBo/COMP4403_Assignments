@@ -14,8 +14,6 @@ import syms.Type.IncompatibleTypes;
 import tree.DeclNode.DeclListNode;
 import tree.StatementNode.*;
 
-import static syms.Predefined.NIL_TYPE;
-
 /** class StaticSemantics - Performs the static semantic checks on
  * the abstract syntax tree using a visitor pattern to traverse the tree.
  * @version $Revision: 22 $  $Date: 2014-05-20 15:14:36 +1000 (Tue, 20 May 2014) $
@@ -382,7 +380,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
                 staticError("Record type "
                         + recordType.getName()
-                        + " does not have field"
+                        + " does not have field "
                         + node.getId(), accessLocation);
             }
         } else {
