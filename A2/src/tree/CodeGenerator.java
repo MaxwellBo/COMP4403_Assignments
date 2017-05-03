@@ -359,14 +359,14 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         runtimeError.genLoadConstant(StackMachine.NIL_POINTER);
         runtimeError.generateOp(Operation.STOP);
 
-        Code lValAddress = node.getLeftValue().genCode( this );
-
-        Code code = lValAddress;
+        Code code = node.getLeftValue().genCode( this );
+        code.generateOp(Operation.LOAD_FRAME);
+        code.generateOp(Operation.DUP);
         code.genLoadConstant(StackMachine.NULL_ADDR);
         code.generateOp(Operation.EQUAL); // Consumes both the LValue address and the NULL_ADDR
         code.genJumpIfFalse(runtimeError.size());
         code.append(runtimeError);
-        code.append(lValAddress);
+        code.generateOp(Operation.TO_LOCAL);
 
         endGen("PointerDereferenceNode");
         return code;
