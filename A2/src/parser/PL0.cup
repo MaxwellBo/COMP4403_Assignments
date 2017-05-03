@@ -347,7 +347,12 @@ Type ::= TypeIdentifier:type
             Type.RecordType rt = new Type.RecordType();
             rt.setLocation(rxleft);
             for (Type.Field f : fs) {
-                rt.add(f);
+                if (rt.containsField(f.getId())) {
+                    errors.error(f.getId() + " repeated field name", f.getLocation());
+                    break;
+                } else {
+                    rt.add(f);
+                }
             }
             RESULT = rt;
         :}
