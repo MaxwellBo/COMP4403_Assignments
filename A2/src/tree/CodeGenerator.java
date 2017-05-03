@@ -355,18 +355,26 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     /** Generate code to dereference a pointer on the heap */
     public Code visitPointerDereferenceNode(ExpNode.PointerDereferenceNode node) {
         beginGen("PointerDereferenceNode");
+
         Code runtimeError = new Code();
         runtimeError.genLoadConstant(StackMachine.NIL_POINTER);
         runtimeError.generateOp(Operation.STOP);
 
+        // Generate code so that we can retrieve the pointer
         Code code = node.getLeftValue().genCode( this );
-        code.generateOp(Operation.LOAD_FRAME); // Don't know why this works, but test-driven-development, amirite?
+
+        // Retrieve _the pointer_
+        code.genLoad(node.getType());
+
+        // Either explode because we deref'd NULL...
         code.generateOp(Operation.DUP);
         code.genLoadConstant(StackMachine.NULL_ADDR);
         code.generateOp(Operation.EQUAL); // Consumes both the LValue address and the NULL_ADDR
         code.genJumpIfFalse(runtimeError.size());
         code.append(runtimeError);
-        code.generateOp(Operation.TO_LOCAL);
+
+        // ... or fix the address on the stack for future use
+        code.generateOp(Operation.TO_LOCAL); // for use by say, `AssignmentNode`s
 
         endGen("PointerDereferenceNode");
         return code;
