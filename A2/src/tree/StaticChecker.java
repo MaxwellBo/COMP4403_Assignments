@@ -436,7 +436,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                         .getRecordType();
 
         if (recordType != null) {
-            if (recordType.getFieldList().size() != e.size()) {
+            if (recordType.getFieldList().size() == e.size()) {
                 List<Type.Field> fields = recordType.getFieldList();
                 int n = fields.size();
                 for (int j = 0; j < n; j++) {
