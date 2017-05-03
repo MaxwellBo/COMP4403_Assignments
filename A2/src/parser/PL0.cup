@@ -354,6 +354,12 @@ Type ::= TypeIdentifier:type
     | POINTER TypeIdentifier:t
         {:
             RESULT = new Type.PointerType( t );
+            
+            Type.ProductType ttTypePair = new Type.ProductType( RESULT, RESULT );
+            Type.FunctionType ttRelationalType = new Type.FunctionType( ttTypePair, Predefined.BOOLEAN_TYPE );
+
+            symtab.getCurrentScope().addOperator("_=_", ErrorHandler.NO_LOCATION, ttRelationalType );
+            symtab.getCurrentScope().addOperator("_!=_", ErrorHandler.NO_LOCATION, ttRelationalType );
         :}
     | error:err
         {:
@@ -613,11 +619,6 @@ Factor ::= PLUS Factor:e
     | KW_NEW TypeIdentifier:t
         {:
             RESULT = new ExpNode.NewNode ( txleft, t );
-            Type.ProductType ttTypePair = new Type.ProductType( t, t );
-            Type.FunctionType ttRelationalType = new Type.FunctionType( ttTypePair, Predefined.BOOLEAN_TYPE );
-
-            symtab.getCurrentScope().addOperator("_=_", ErrorHandler.NO_LOCATION, ttRelationalType );
-            symtab.getCurrentScope().addOperator("_!=_", ErrorHandler.NO_LOCATION, ttRelationalType );
         :}
     | TypeIdentifier:t LCURLY RecordFields:rfs RCURLY
         {:
