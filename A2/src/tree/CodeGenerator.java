@@ -376,6 +376,11 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     public Code visitRecordConstructorNode(ExpNode.RecordConstructorNode node) {
         beginGen("RecordConstructor");
         Code code = new Code();
+
+        for (ExpNode field : node.getRecordFields()) {
+            code.append(field.genCode(this));
+        }
+
         endGen("RecordConstructor");
         return code;
     }
