@@ -370,9 +370,8 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
 
         // `getRecordType` returns null if the type wasn't an instanceof `RecordType`
         if (recordType != null) {
-            Type fieldType = recordType.getFieldType(node.getId());
-            if (fieldType != Type.ERROR_TYPE) {
-                node.setType(new Type.ReferenceType(fieldType));
+            if (recordType.containsField(node.getId())) {
+                node.setType(new Type.ReferenceType(recordType.getFieldType(node.getId())));
             } else {
                 // Why did I do this
                 Location accessLocation = Location.clone(node.getLocation());
