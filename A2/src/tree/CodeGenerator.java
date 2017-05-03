@@ -360,7 +360,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         runtimeError.generateOp(Operation.STOP);
 
         Code code = node.getLeftValue().genCode( this );
-        code.generateOp(Operation.LOAD_FRAME);
+        code.generateOp(Operation.LOAD_FRAME); // Don't know why this works, but test-driven-development, amirite?
         code.generateOp(Operation.DUP);
         code.genLoadConstant(StackMachine.NULL_ADDR);
         code.generateOp(Operation.EQUAL); // Consumes both the LValue address and the NULL_ADDR
