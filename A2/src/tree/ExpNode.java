@@ -380,8 +380,7 @@ public abstract class ExpNode {
 
         @Override
         public String toString() {
-            // TODO
-            return super.toString();
+            return leftValue.toString() + "." +  id;
         }
     }
 
@@ -415,8 +414,7 @@ public abstract class ExpNode {
 
         @Override
         public String toString() {
-            // TODO
-            return super.toString();
+            return leftValue.toString() + "^";
         }
     }
 
@@ -445,8 +443,7 @@ public abstract class ExpNode {
 
         @Override
         public String toString() {
-            // TODO
-            return super.toString();
+            return "NEW " + typeIdentifier.toString();
         }
     }
 
@@ -487,8 +484,13 @@ public abstract class ExpNode {
 
         @Override
         public String toString() {
-            // TODO
-            return super.toString();
+            String collector = typeIdentifier.toString() + "{ ";
+
+            for (ExpNode e : recordFields) {
+                collector += (e.toString() + ", ");
+            }
+
+            return collector += "}";
         }
     }
 }

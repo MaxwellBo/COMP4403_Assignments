@@ -387,6 +387,8 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         beginGen("RecordConstructor");
         Code code = new Code();
 
+        // Assignment node handles loads of arbitrarily sized types
+        // Therefore, just dump all the arguments on the stack
         for (ExpNode field : node.getRecordFields()) {
             code.append(field.genCode(this));
         }
