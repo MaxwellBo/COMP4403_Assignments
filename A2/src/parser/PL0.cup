@@ -354,7 +354,7 @@ Type ::= TypeIdentifier:type
     | POINTER TypeIdentifier:t
         {:
             RESULT = new Type.PointerType( t );
-            
+
             Type.ProductType ttTypePair = new Type.ProductType( RESULT, RESULT );
             Type.FunctionType ttRelationalType = new Type.FunctionType( ttTypePair, Predefined.BOOLEAN_TYPE );
 

@@ -375,10 +375,8 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     /** Generate code to allocate a pointer on the heap */
     public Code visitNewNode(ExpNode.NewNode node) {
         beginGen("New" );
-        // TODO: The type identifier might have to be transformed
-        // before we know the size of the shit that's getting stored
         Code code = new Code();
-        code.genLoadConstant(node.getTypeIdentifier().getSpace());
+        code.genLoadConstant(node.getType().getPointerType().getBaseType().getSpace());
         code.generateOp(Operation.ALLOC_HEAP);
         endGen( "New" );
         return code;

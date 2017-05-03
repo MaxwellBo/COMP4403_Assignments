@@ -434,21 +434,33 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                 .collect(Collectors.toList());
 
         String typeId = node.getTypeIdentifier().getName();
-        Type.RecordType recordType = symtab.getCurrentScope().lookupType(typeId).getType().getRecordType();
-
-        // TODO: Do I have to check that both the arg list and the record type are the same size?
+        Type.RecordType recordType =
+                symtab
+                        .getCurrentScope()
+                        .lookupType(typeId)
+                        .getType()
+                        .getRecordType();
 
         if (recordType != null) {
-            List<Type.Field> fields = recordType.getFieldList();
-            int n = fields.size();
-            for (int j = 0; j < n; j++) {
-                ExpNode e_j = e.get(j);
-                Type T_j = fields.get(j).getType();
+            if (recordType.getFieldList().size() != e.size()) {
+                List<Type.Field> fields = recordType.getFieldList();
+                int n = fields.size();
+                for (int j = 0; j < n; j++) {
+                    ExpNode e_j = e.get(j);
+                    Type T_j = fields.get(j).getType();
 
-                e.set(j, T_j.coerceExp(e_j));
+                    e.set(j, T_j.coerceExp(e_j));
+                }
+            } else {
+                staticError("the number of arguments provided to the record constructor"
+                                + " is not equal to the arity of the record constructor",
+                        node.getLocation());
             }
-        } else {
-            staticError("cannot construct a record with a type identifier that is not a record type", node.getLocation());
+        }
+        else {
+            staticError("cannot construct a record with a type identifier"
+                            + " that is not a record type",
+                    node.getLocation());
         }
 
         node.setType(recordType);
