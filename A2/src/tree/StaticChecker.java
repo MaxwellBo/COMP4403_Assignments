@@ -373,17 +373,11 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             if (recordType.containsField(node.getId())) {
                 node.setType(new Type.ReferenceType(recordType.getFieldType(node.getId())));
             } else {
-                // Why did I do this
-                Location accessLocation = Location.clone(node.getLocation());
-                accessLocation.move(0, recordType.getName().length(), 0);
-
-                staticError("Record type "
-                        + recordType.getName()
-                        + " does not have field "
-                        + node.getId(), accessLocation);
+                staticError("record doesn't contain attribute " + node.getId(),
+                        node.getLocation());
             }
         } else {
-            staticError(node.getType().getName() + " is not a record type", node.getLocation());
+            staticError("must be a record type, found " + node.getLeftValue().getType(), node.getLocation());
         }
         endCheck("FieldAccess");
         return node;
