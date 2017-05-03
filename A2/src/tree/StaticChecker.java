@@ -402,7 +402,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         if (pointerType != null) {
             node.setType(pointerType.getBaseType());
         } else {
-            staticError( "cannot dereference an expression which isn't a reference",
+            staticError( "type must be a pointer",
                     node.getLocation() );
         }
         endCheck("PointerDereference");

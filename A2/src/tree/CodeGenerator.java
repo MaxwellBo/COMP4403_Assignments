@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.Stack;
 
 import machine.Operation;
+import machine.StackMachine;
 import source.Errors;
 import syms.SymEntry;
 import syms.Type;
@@ -354,8 +355,16 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     /** Generate code to dereference a pointer on the heap */
     public Code visitPointerDereferenceNode(ExpNode.PointerDereferenceNode node) {
         beginGen("PointerDereferenceNode");
-        // TODO: This might not be right
+        Code runtimeError = new Code();
+        runtimeError.genLoadConstant(StackMachine.NIL_POINTER);
+        runtimeError.generateOp(Operation.STOP);
+
         Code code = node.getLeftValue().genCode( this );
+        code.genLoadConstant(0);
+        code.generateOp(Operation.EQUAL);
+        code.genJumpIfFalse(runtimeError.size());
+        code.append(runtimeError);
+
         endGen("PointerDereferenceNode");
         return code;
     }
