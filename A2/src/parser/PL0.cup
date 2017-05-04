@@ -356,9 +356,9 @@ Type ::= TypeIdentifier:type
             }
             RESULT = rt;
         :}
-    | POINTER TypeIdentifier:t
+    | POINTER TypeIdentifier:type
         {:
-            RESULT = new Type.PointerType( t );
+            RESULT = new Type.PointerType( type );
 
             Type.ProductType ttTypePair = new Type.ProductType( RESULT, RESULT );
             Type.FunctionType ttRelationalType = new Type.FunctionType( ttTypePair, Predefined.BOOLEAN_TYPE );
@@ -621,13 +621,13 @@ Factor ::= PLUS Factor:e
         {:
             RESULT = new ExpNode.ErrorNode( exleft );
         :}
-    | KW_NEW TypeIdentifier:t
+    | KW_NEW TypeIdentifier:type
         {:
-            RESULT = new ExpNode.NewNode ( txleft, t );
+            RESULT = new ExpNode.NewNode ( typexleft, type );
         :}
-    | TypeIdentifier:t LCURLY RecordFields:rfs RCURLY
+    | TypeIdentifier:type LCURLY RecordFields:rfs RCURLY
         {:
-            RESULT = new ExpNode.RecordConstructorNode ( txleft, t, rfs );
+            RESULT = new ExpNode.RecordConstructorNode ( typexleft, type, rfs );
         :}
     ;
 UnaryOperator ::= MINUS:op
@@ -659,9 +659,9 @@ Fields ::= Fields:fields SEMICOLON Field:field
         :}
     ;
 
-Field ::= IDENTIFIER:id COLON TypeIdentifier:t
+Field ::= IDENTIFIER:id COLON TypeIdentifier:type
         {:
-            RESULT = new Type.Field( idxleft, id, t );
+            RESULT = new Type.Field( idxleft, id, type );
         :}
     ;
 
