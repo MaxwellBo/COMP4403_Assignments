@@ -1,4 +1,6 @@
-<project name="PL0-Compiler" default="cup" basedir=".">
+<project name="PL0-Compiler-Cup" default="cup" basedir=".">
+	<taskdef name="JFlexTask" classname="jflex.anttask.JFlexTask"/>
+	<taskdef name="CUPTask" classname="java_cup.anttask.CUPTask"/>
 
 <!--
     <property name="home" value="${basedir}" />
