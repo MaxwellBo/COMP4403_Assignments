@@ -329,7 +329,7 @@ public abstract class ExpNode {
         public WidenSubrangeNode( Location loc, Type type, ExpNode exp ) {
             super( loc, type );
             assert exp.getType() instanceof Type.SubrangeType &&
-                   ((Type.SubrangeType)exp.getType()).getBaseType().equals( type );
+                    ((Type.SubrangeType)exp.getType()).getBaseType().equals( type );
             this.exp = exp;
         }
         public ExpNode getExp() {
@@ -348,4 +348,64 @@ public abstract class ExpNode {
             return "WidenSubrange(" + exp + ":" + getType() + ")";
         }
     }
+
+    /** Tree node representing an actual parameter */
+    public static class ActualParamNode extends ExpNode {
+        /** TODO */
+        private String id;
+        private ExpNode condition;
+
+        public ActualParamNode( Location loc, String id, ExpNode condition ) {
+            super( loc );
+            this.id = id;
+            this.condition = condition;
+        }
+        public String getId() {
+            return id;
+        }
+        public ExpNode getCondition() {
+            return condition;
+        }
+        @Override
+        public ExpNode transform( ExpTransform<ExpNode> visitor ) {
+            return visitor.visitActualParamNode( this );
+        }
+        @Override
+        public Code genCode( ExpTransform<Code> visitor ) {
+            return visitor.visitActualParamNode( this );
+        }
+        @Override
+        public String toString() {
+            return "TODO";
+        }
+    }
+
+    /** Tree node representing a TODO */
+    public static class FunctionNode extends ExpNode {
+        /** TODO */
+        private String id;
+        private List<ExpNode> params;
+
+        public FunctionNode( Location loc, String id, List<ExpNode> params ) {
+            super( loc );
+            this.id = id;
+            this.params = params;
+        }
+        public String getId() {
+            return id;
+        }
+        @Override
+        public ExpNode transform( ExpTransform<ExpNode> visitor ) {
+            return visitor.visitFunctionNode( this );
+        }
+        @Override
+        public Code genCode( ExpTransform<Code> visitor ) {
+            return visitor.visitFunctionNode( this );
+        }
+        @Override
+        public String toString() {
+            return "TODO";
+        }
+    }
+
 }

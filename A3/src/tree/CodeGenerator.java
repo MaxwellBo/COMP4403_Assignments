@@ -183,6 +183,15 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         endGen( "While" );
         return code;
     }
+
+    /** TODO */
+    public Code visitReturnNode(StatementNode.ReturnNode node) {
+        beginGen("Return");
+        Code code = new Code();
+        endGen("Return");
+        return code;
+    }
+
     /*************************************************
      *  Expression node code generation visit methods
      *************************************************/
@@ -341,6 +350,22 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         // Widening doesn't require anything extra
         Code code = node.getExp().genCode( this );
         endGen( "WidenSubrange" );
+        return code;
+    }
+
+    /** TODO */
+    public Code visitActualParamNode(ExpNode.ActualParamNode node) {
+        beginGen( "ActualParam" );
+        Code code = new Code();
+        endGen( "ActualParam" );
+        return code;
+    }
+
+    /** TODO */
+    public Code visitFunctionNode(ExpNode.FunctionNode node) {
+        beginGen( "Function" );
+        Code code = new Code();
+        endGen( "Function" );
         return code;
     }
 

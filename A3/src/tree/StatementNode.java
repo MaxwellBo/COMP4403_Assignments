@@ -224,6 +224,27 @@ public abstract class StatementNode {
             return s + ")";
         }
     }
+    /** Tree node representing a "return" statement. */
+    public static class ReturnNode extends StatementNode {
+        private ExpNode condition;
+
+        public ReturnNode( Location loc, ExpNode condition ) {
+            super( loc );
+            this.condition = condition;
+        }
+        @Override
+        public void accept( StatementVisitor visitor ) {
+            visitor.visitReturnNode( this );
+        }
+        @Override
+        public Code genCode( StatementTransform<Code> visitor ) {
+            return visitor.visitReturnNode( this );
+        }
+        @Override
+        public String toString( int level ) {
+            return "RETURN " + condition;
+        }
+    }
     /** Tree node representing a statement list. */
     public static class ListNode extends StatementNode {
         private List<StatementNode> statements;

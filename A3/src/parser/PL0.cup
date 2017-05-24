@@ -156,7 +156,7 @@ non terminal DeclNode.ProcedureNode  ProcedureDef;
 non terminal SymEntry.ProcedureEntry ProcedureHead;
 non terminal 
                               FormalParamList;
-non terminal 
+non terminal List<ExpNode>
                               ActualParamList;
 non terminal StatementNode.ListNode StatementList;
 non terminal StatementNode    Statement,
@@ -171,6 +171,11 @@ non terminal Operator         Relation,
                               MulOp,
                               UnaryOperator;
 non terminal ExpNode          LValue;
+non terminal ExpNode                    ActualParam;
+non terminal List<ExpNode>              ActualParams;
+non terminal SymEntry.ParamEntry        FormalParam;
+non terminal List<SymEntry.ParamEntry>  FormalParams;
+
 
 /**-------------------------------------------------------------*
  *------------------------ GRAMMAR RULES -----------------------*
@@ -396,7 +401,41 @@ ProcedureHead ::= KW_PROCEDURE IDENTIFIER:id
 
 
 /* To allow for the addition of procedure parameters. */
-FormalParamList ::= /* empty */
+FormalParamList ::= FormalParams:pl
+        {:
+            Type.ProcedureType type = new Type.ProcedureType();
+            type.setFormalParams(pl);
+            RESULT = type;
+        :}
+    | /* empty */
+        {:
+            RESULT = new Type.ProcedureType();
+        :}
+    ;
+
+FormalParams ::= FormalParams:pl COMMA FormalParam:p
+        {:
+            pl.add(p);
+            RESULT = pl;
+        :}
+    | FormalParam:p
+        {:
+            List<SymEntry.ParamEntry> pl = new ArrayList<>();
+            pl.add(p);
+            RESULT = pl;
+        :}
+    ;
+
+FormalParam ::= IDENTIFIER:id COLON TypeIdentifier:type
+        {:
+            RESULT = new SymEntry.ParamEntry(id, idxleft,
+                new Type.ReferenceType(type));
+        :}
+    | IDENTIFIER:id COLON TypeIdentifier:type GETS Condition:c
+        {:
+            RESULT = new SymEntry.ParamEntry(id, idxleft,
+                new Type.ReferenceType(type), c);
+        :}
     ;
 
 CompoundStatement ::= KW_BEGIN StatementList:sl KW_END
@@ -446,14 +485,44 @@ Statement ::= KW_WHILE Condition:c KW_DO Statement:s
         {: 
             RESULT = new StatementNode.CallNode( idxleft, id );
         :}
-    |  error:p 
+    |  KW_RETURN:r Condition:c
+        {:
+            RESULT = new StatementNode.ReturnNode( rxleft, c );
+        :}
+    |  error:p
         {: 
             RESULT = new StatementNode.ErrorNode( pxleft );
         :}
     ;
 
-ActualParamList ::= /* empty */
+ActualParamList ::= ActualParams:pl
+        {:
+            RESULT = pl;
+        :}
+    | /* empty */
+        {:
+            RESULT = new ArrayList<ExpNode>();
+        :}
     ;
+
+ActualParams ::= ActualParams:pl COMMA ActualParam:p
+        {:
+            pl.add(p);
+            RESULT = pl;
+        :}
+    | ActualParam:p
+        {:
+            List<ExpNode> pl = new ArrayList<>();
+            pl.add(p);
+            RESULT = pl;
+        :}
+    ;
+
+ActualParam ::= IDENTIFIER:id GETS Condition:c
+        {:
+            RESULT = new ExpNode.ActualParamNode( idxleft, id, c );
+        :}
+     ;
 
 LValue ::= IDENTIFIER:id
         {:
@@ -569,6 +638,10 @@ Factor ::= PLUS Factor:e
     |  LValue:lval
         {:
             RESULT = lval;
+        :}
+    |  IDENTIFIER:id LPAREN ActualParamList:pl RPAREN
+        {:
+            RESULT = new ExpNode.FunctionNode(idxleft, id, pl);
         :}
     | error:e
         {:

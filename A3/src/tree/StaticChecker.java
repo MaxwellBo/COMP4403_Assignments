@@ -180,6 +180,12 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         node.getLoopStmt().accept( this );  // Check the body of the loop
         endCheck("While");
     }
+    /** TODO */
+    public void visitReturnNode(StatementNode.ReturnNode node) {
+        beginCheck("Return");
+        // Nothing to do.
+        endCheck("Return");
+    }
     /*************************************************
      *  Expression node static checker visit methods.
      *  The static checking visitor methods for expressions
@@ -356,6 +362,22 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         beginCheck("WidenSubrange");
         // Nothing to do.
         endCheck("WidenSubrange");
+        return node;
+    }
+
+    /** TODO */
+    public ExpNode visitActualParamNode(ExpNode.ActualParamNode node) {
+        beginCheck("ActualParam");
+        // Nothing to do.
+        endCheck("ActualParam");
+        return node;
+    }
+
+    /** TODO */
+    public ExpNode visitFunctionNode(ExpNode.FunctionNode node) {
+        beginCheck("Function");
+        // Nothing to do.
+        endCheck("Function");
         return node;
     }
 
