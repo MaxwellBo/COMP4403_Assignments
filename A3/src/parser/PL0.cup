@@ -435,10 +435,9 @@ FormalParams ::= FormalParams:pl COMMA FormalParam:p
             for (SymEntry s : pl) {
                 if (s.getIdent().equals(p.getIdent())) {
                    errors.error(s.getIdent() + " repeated", pxleft);
-                } else {
-                    pl.add(p);
                 }
             }
+            pl.add(p);
             RESULT = pl;
         :}
     | FormalParam:p
