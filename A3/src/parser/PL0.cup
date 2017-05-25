@@ -392,7 +392,7 @@ ProcedureHead ::= KW_PROCEDURE IDENTIFIER:id
             currentScope = currentScope.newScope( procEntry );
 
             for( SymEntry param : pl.getFormalParams() ) {
-                if (currentScope.addEntry(param);
+                currentScope.addEntry(param);
             }
 
             RESULT = procEntry;
