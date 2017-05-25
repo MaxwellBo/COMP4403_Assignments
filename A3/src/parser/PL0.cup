@@ -154,7 +154,7 @@ non terminal                  VarDeclSeq,
                               VarDecl;
 non terminal DeclNode.ProcedureNode  ProcedureDef;
 non terminal SymEntry.ProcedureEntry ProcedureHead;
-non terminal 
+non terminal Type.ProcedureType
                               FormalParamList;
 non terminal List<ExpNode>
                               ActualParamList;
@@ -375,6 +375,8 @@ ProcedureDef ::= ProcedureHead:procEntry EQUALS Block:b
 ProcedureHead ::= KW_PROCEDURE IDENTIFIER:id
             LPAREN FormalParamList:pl RPAREN ReturnType:rt
         {: 
+            pl.setResultType(rt);
+
             SymEntry.ProcedureEntry procEntry;
             /* Add an entry for the procedure to the current scope */
             procEntry = currentScope.addProcedure( id, idxleft );
@@ -388,6 +390,11 @@ ProcedureHead ::= KW_PROCEDURE IDENTIFIER:id
             /* Create a new scope for the symbols local to
              * the procedure. */
             currentScope = currentScope.newScope( procEntry );
+
+            for( SymEntry param : pl.getFormalParams() ) {
+                if (currentScope.addEntry(param);
+            }
+
             RESULT = procEntry;
         :}
     |  KW_PROCEDURE IDENTIFIER:id error
