@@ -379,12 +379,12 @@ ProcedureHead ::= KW_PROCEDURE IDENTIFIER:id
 
             SymEntry.ProcedureEntry procEntry;
             /* Add an entry for the procedure to the current scope */
-            procEntry = currentScope.addProcedure( id, idxleft );
+            procEntry = currentScope.addProcedure( id, idxleft, pl );
             if( procEntry == null ) {
                 errors.error( id + " already declared", idxleft );
                 /* Create a dummy symbol table entry.
                  * Note that this entry isn't in symtab. */
-                procEntry = new SymEntry.ProcedureEntry( id, idxleft );
+                procEntry = new SymEntry.ProcedureEntry( id, idxleft, pl );
                 procEntry.setScope( currentScope );
             }
             /* Create a new scope for the symbols local to
@@ -504,8 +504,10 @@ Statement ::= KW_WHILE Condition:c KW_DO Statement:s
           RESULT = new StatementNode.AssignmentNode( lvalxleft, lval, rval );
        :} 
     |  KW_CALL IDENTIFIER:id LPAREN ActualParamList:pl RPAREN
-        {: 
-            RESULT = new StatementNode.CallNode( idxleft, id );
+        {:
+            StatementNode.CallNode node = new StatementNode.CallNode( idxleft, id );
+            node.setActualParams(pl);
+            RESULT = node;
         :}
     |  KW_RETURN:r Condition:c
         {:

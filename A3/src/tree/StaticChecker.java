@@ -138,9 +138,29 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         SymEntry.ProcedureEntry procEntry = null;
         // Look up the symbol table entry for the procedure.
         SymEntry entry = currentScope.lookup( node.getId() );
+
+        node.setActualParams(node.getActualParams()
+                .stream()
+                .map(x -> x.transform(this))
+                .collect(Collectors.toList()));
+
         if( entry instanceof SymEntry.ProcedureEntry ) {
             procEntry = (SymEntry.ProcedureEntry)entry;
             node.setEntry( procEntry );
+
+            List<String> formalParameterIds = procEntry.getType().getFormalParams()
+                    .stream()
+                    .map(x -> x.getIdent())
+                    .collect(Collectors.toList());
+
+            for (ExpNode ap : node.getActualParams()) {
+                String actualparameterId = ((ExpNode.ActualParamNode)ap).getId();
+
+                if (!formalParameterIds.contains(actualparameterId)) {
+                    staticError("not a parameter of procedure", ap.getLocation());
+                }
+            }
+
         } else {
             staticError( "Procedure identifier required", node.getLocation() );
             endCheck("Call");
