@@ -15,6 +15,7 @@ import tree.StatementNode;
 import tree.ExpNode;
 import tree.Operator;
 import syms.*;
+import java.util.stream.Collectors;
 
 /** PL0 definition for CUP LALR(1) parser generator.
  * @version $Revision: 22 $Date: 2013-05-08 13:58:21 +1000 (Wed, 08 May 2013)$
@@ -432,12 +433,14 @@ FormalParamList ::= FormalParams:pl
 
 FormalParams ::= FormalParams:pl COMMA FormalParam:p
         {:
-            for (SymEntry s : pl) {
-                if (s.getIdent().equals(p.getIdent())) {
-                   errors.error(s.getIdent() + " repeated", pxleft);
-                }
+            if (pl
+                .stream()
+                .map(x -> x.getIdent())
+                .collect(Collectors.toList()).contains(p.getIdent())) {
+                   errors.error(p.getIdent() + " repeated", pxleft);
+            } else {
+                pl.add(p);
             }
-            pl.add(p);
             RESULT = pl;
         :}
     | FormalParam:p
