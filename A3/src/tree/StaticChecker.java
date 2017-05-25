@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import source.Errors;
 import java_cup.runtime.ComplexSymbolFactory.Location;
@@ -376,7 +377,12 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     /** TODO */
     public ExpNode visitFunctionNode(ExpNode.FunctionNode node) {
         beginCheck("Function");
-        // Nothing to do.
+
+        node.setParams(node.getParams()
+                .stream()
+                .map(x -> x.transform(this))
+                .collect(Collectors.toList()));
+
         endCheck("Function");
         return node;
     }

@@ -394,6 +394,13 @@ public abstract class ExpNode {
         public String getId() {
             return id;
         }
+
+        public List<ExpNode> getParams() {
+            return params;
+        }
+        public void setParams(List<ExpNode> params) {
+            this.params = params;
+        }
         @Override
         public ExpNode transform( ExpTransform<ExpNode> visitor ) {
             return visitor.visitFunctionNode( this );
