@@ -175,6 +175,7 @@ non terminal ExpNode                    ActualParam;
 non terminal List<ExpNode>              ActualParams;
 non terminal SymEntry.ParamEntry        FormalParam;
 non terminal List<SymEntry.ParamEntry>  FormalParams;
+non terminal Type                       ReturnType;
 
 
 /**-------------------------------------------------------------*
@@ -372,7 +373,7 @@ ProcedureDef ::= ProcedureHead:procEntry EQUALS Block:b
     ;
 
 ProcedureHead ::= KW_PROCEDURE IDENTIFIER:id
-            LPAREN FormalParamList:pl RPAREN 
+            LPAREN FormalParamList:pl RPAREN ReturnType:rt
         {: 
             SymEntry.ProcedureEntry procEntry;
             /* Add an entry for the procedure to the current scope */
@@ -399,6 +400,15 @@ ProcedureHead ::= KW_PROCEDURE IDENTIFIER:id
         :}
     ;
 
+ReturnType ::= COLON TypeIdentifier:type
+        {:
+            RESULT = type;
+        :}
+    | /* empty */
+        {:
+            RESULT = Type.VOID_TYPE;
+        :}
+    ;
 
 /* To allow for the addition of procedure parameters. */
 FormalParamList ::= FormalParams:pl
