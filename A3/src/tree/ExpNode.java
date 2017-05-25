@@ -366,6 +366,9 @@ public abstract class ExpNode {
         public ExpNode getCondition() {
             return condition;
         }
+        public void setCondition(ExpNode condition) {
+            this.condition = condition;
+        }
         @Override
         public ExpNode transform( ExpTransform<ExpNode> visitor ) {
             return visitor.visitActualParamNode( this );
@@ -376,7 +379,7 @@ public abstract class ExpNode {
         }
         @Override
         public String toString() {
-            return "TODO";
+            return id + " <- " + condition;
         }
     }
 

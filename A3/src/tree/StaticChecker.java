@@ -158,6 +158,11 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             for (String apId : idToActualParam.keySet()) {
                 if (!idToFormalParam.containsKey(apId)) {
                     staticError("not a parameter of procedure", idToActualParam.get(apId).getLocation());
+                } else {
+                    ExpNode.ActualParamNode ap = idToActualParam.get(apId);
+                    SymEntry.ParamEntry fp = idToFormalParam.get(apId);
+
+                    ap.setCondition(fp.getType().getBaseType().coerceExp(ap.getCondition()));
                 }
             }
 
@@ -398,7 +403,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     /** TODO */
     public ExpNode visitActualParamNode(ExpNode.ActualParamNode node) {
         beginCheck("ActualParam");
-        // Nothing to do.
+        node.setCondition(node.getCondition().transform(this));
         endCheck("ActualParam");
         return node;
     }
