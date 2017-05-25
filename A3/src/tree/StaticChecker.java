@@ -1,11 +1,6 @@
 package tree;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 import source.Errors;
@@ -148,29 +143,27 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             procEntry = (SymEntry.ProcedureEntry)entry;
             node.setEntry( procEntry );
 
-            // Forgive my stream abuse, I am but a lowly functional programmer
-            List<SymEntry.ParamEntry> formalParams = procEntry.getType().getFormalParams();
-            List<String> formalParamIds = formalParams
-                    .stream()
-                    .map(x -> x.getIdent())
-                    .collect(Collectors.toList());
+            Map<String, SymEntry.ParamEntry> idToFormalParam = new LinkedHashMap<>();
+            Map<String, ExpNode.ActualParamNode> idToActualParam = new LinkedHashMap<>();
 
-            List<String> actualParamIds = node.getActualParams()
-                    .stream()
-                    .map(x -> ((ExpNode.ActualParamNode)x).getId())
-                    .collect(Collectors.toList());
+            for (SymEntry.ParamEntry fp : procEntry.getType().getFormalParams()) {
+                idToFormalParam.put(fp.getIdent(), fp);
+            }
 
             for (ExpNode ap : node.getActualParams()) {
-                // Java is a well designed language with a sensible typesystem
                 ExpNode.ActualParamNode app = (ExpNode.ActualParamNode)ap;
-                if (!formalParamIds.contains(app.getId())) {
-                    staticError("not a parameter of procedure", app.getLocation());
+                idToActualParam.put(app.getId(), app);
+            }
+
+            for (String apId : idToActualParam.keySet()) {
+                if (!idToFormalParam.containsKey(apId)) {
+                    staticError("not a parameter of procedure", idToActualParam.get(apId).getLocation());
                 }
             }
 
-            for (SymEntry.ParamEntry fp : formalParams) {
+            for (SymEntry.ParamEntry fp : idToFormalParam.values()) {
                 boolean hasNoDefault = fp.getDefaultExp() == null;
-                boolean notFilled = !actualParamIds.contains(fp.getIdent());
+                boolean notFilled = !idToActualParam.containsKey(fp.getIdent());
 
                 if (hasNoDefault && notFilled) {
                     staticError("no value for parameter " + fp.getIdent(), node.getLocation());
