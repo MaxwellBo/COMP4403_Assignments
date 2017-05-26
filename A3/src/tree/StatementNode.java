@@ -240,6 +240,12 @@ public abstract class StatementNode {
             super( loc );
             this.condition = condition;
         }
+        ExpNode getCondition() {
+            return condition;
+        }
+        void setCondition(ExpNode condition) {
+            this.condition = condition;
+        }
         @Override
         public void accept( StatementVisitor visitor ) {
             visitor.visitReturnNode( this );
