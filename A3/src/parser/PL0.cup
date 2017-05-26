@@ -534,7 +534,15 @@ ActualParamList ::= ActualParams:pl
 
 ActualParams ::= ActualParams:pl COMMA ActualParam:p
         {:
-            pl.add(p);
+            ExpNode.ActualParamNode pp = (ExpNode.ActualParamNode)p;
+            if (pl
+                .stream()
+                .map(x -> ((ExpNode.ActualParamNode)x).getId())
+                .collect(Collectors.toList()).contains(pp.getId())) {
+                   errors.error(pp.getId() + " repeated", pxleft);
+            } else {
+                pl.add(p);
+            }
             RESULT = pl;
         :}
     | ActualParam:p
