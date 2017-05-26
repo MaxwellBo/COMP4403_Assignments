@@ -218,9 +218,15 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     /** TODO */
     public void visitReturnNode(StatementNode.ReturnNode node) {
         beginCheck("Return");
-        Type resultType = currentScope.getOwnerEntry().getType().getResultType();
         node.setCondition(node.getCondition().transform(this));
-        node.setCondition(resultType.coerceExp(node.getCondition()));
+
+        Type resultType = currentScope.getOwnerEntry().getType().getResultType();
+
+        if (resultType.equals(Type.VOID_TYPE)) {
+            staticError("can only return from a function", node.getCondition().getLocation());
+        } else {
+            node.setCondition(resultType.coerceExp(node.getCondition()));
+        }
         endCheck("Return");
     }
     /*************************************************
