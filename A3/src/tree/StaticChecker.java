@@ -143,6 +143,10 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             procEntry = (SymEntry.ProcedureEntry)entry;
             node.setEntry( procEntry );
 
+            if (!procEntry.getType().getResultType().equals(Type.VOID_TYPE)) {
+                staticError("cannot call a function from a call statement", node.getLocation());
+            }
+
             Map<String, SymEntry.ParamEntry> idToFormalParam = new LinkedHashMap<>();
             Map<String, ExpNode.ActualParamNode> idToActualParam = new LinkedHashMap<>();
 
@@ -419,11 +423,56 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     /** TODO */
     public ExpNode visitFunctionNode(ExpNode.FunctionNode node) {
         beginCheck("Function");
+        SymEntry.ProcedureEntry procEntry = null;
+        // Look up the symbol table entry for the procedure.
+        SymEntry entry = currentScope.lookup( node.getId() );
 
-        node.setParams(node.getParams()
+        node.setActualParams(node.getActualParams()
                 .stream()
                 .map(x -> x.transform(this))
                 .collect(Collectors.toList()));
+
+        if( entry instanceof SymEntry.ProcedureEntry ) {
+            procEntry = (SymEntry.ProcedureEntry)entry;
+            node.setEntry( procEntry );
+
+            Map<String, SymEntry.ParamEntry> idToFormalParam = new LinkedHashMap<>();
+            Map<String, ExpNode.ActualParamNode> idToActualParam = new LinkedHashMap<>();
+
+            for (SymEntry.ParamEntry fp : procEntry.getType().getFormalParams()) {
+                idToFormalParam.put(fp.getIdent(), fp);
+            }
+
+            for (ExpNode ap : node.getActualParams()) {
+                ExpNode.ActualParamNode app = (ExpNode.ActualParamNode)ap;
+                idToActualParam.put(app.getId(), app);
+            }
+
+            for (String apId : idToActualParam.keySet()) {
+                if (!idToFormalParam.containsKey(apId)) {
+                    staticError("not a parameter of procedure", idToActualParam.get(apId).getLocation());
+                } else {
+                    ExpNode.ActualParamNode ap = idToActualParam.get(apId);
+                    SymEntry.ParamEntry fp = idToFormalParam.get(apId);
+
+                    ap.setCondition(fp.getType().getBaseType().coerceExp(ap.getCondition()));
+                }
+            }
+
+            for (SymEntry.ParamEntry fp : idToFormalParam.values()) {
+                boolean hasNoDefault = fp.getDefaultExp() == null;
+                boolean notFilled = !idToActualParam.containsKey(fp.getIdent());
+
+                if (hasNoDefault && notFilled) {
+                    staticError("no value for parameter " + fp.getIdent(), node.getLocation());
+                }
+            }
+
+        } else {
+            staticError( "Procedure identifier required", node.getLocation() );
+            endCheck("Function");
+            return node;
+        }
 
         endCheck("Function");
         return node;

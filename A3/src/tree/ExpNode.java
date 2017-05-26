@@ -387,22 +387,30 @@ public abstract class ExpNode {
     public static class FunctionNode extends ExpNode {
         /** TODO */
         private String id;
-        private List<ExpNode> params;
+        private SymEntry.ProcedureEntry procEntry;
+        private List<ExpNode> actualParams;
 
-        public FunctionNode( Location loc, String id, List<ExpNode> params ) {
+        public FunctionNode( Location loc, String id, List<ExpNode> actualParams ) {
             super( loc );
             this.id = id;
-            this.params = params;
+            this.actualParams = actualParams;
         }
         public String getId() {
             return id;
         }
 
-        public List<ExpNode> getParams() {
-            return params;
+        public SymEntry.ProcedureEntry getEntry() {
+            return procEntry;
         }
-        public void setParams(List<ExpNode> params) {
-            this.params = params;
+        public void setEntry(SymEntry.ProcedureEntry entry) {
+            this.procEntry = entry;
+        }
+
+        public List<ExpNode> getActualParams() {
+            return actualParams;
+        }
+        public void setActualParams(List<ExpNode> actualParams) {
+            this.actualParams = actualParams;
         }
         @Override
         public ExpNode transform( ExpTransform<ExpNode> visitor ) {
