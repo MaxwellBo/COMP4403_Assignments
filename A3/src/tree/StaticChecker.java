@@ -436,6 +436,10 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             procEntry = (SymEntry.ProcedureEntry)entry;
             node.setEntry( procEntry );
 
+            if (procEntry.getType().getResultType().equals(Type.VOID_TYPE)) {
+                staticError(node.getId() + " should be a function", node.getLocation());
+            }
+
             Map<String, SymEntry.ParamEntry> idToFormalParam = new LinkedHashMap<>();
             Map<String, ExpNode.ActualParamNode> idToActualParam = new LinkedHashMap<>();
 
