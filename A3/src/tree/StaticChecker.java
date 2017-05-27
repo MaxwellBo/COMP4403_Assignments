@@ -143,6 +143,12 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             procEntry = (SymEntry.ProcedureEntry)entry;
             node.setEntry( procEntry );
 
+            int offset = -1;
+            for (SymEntry.ParamEntry p : procEntry.getType().getFormalParams()) {
+                p.setOffset(offset);
+                offset += p.getSpace();
+            }
+
             if (!procEntry.getType().getResultType().equals(Type.VOID_TYPE)) {
                 staticError("cannot call a function from a call statement", node.getLocation());
             }
@@ -435,6 +441,12 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         if( entry instanceof SymEntry.ProcedureEntry ) {
             procEntry = (SymEntry.ProcedureEntry)entry;
             node.setEntry( procEntry );
+
+            int offset = -1;
+            for (SymEntry.ParamEntry p : procEntry.getType().getFormalParams()) {
+                p.setOffset(offset);
+                offset += p.getSpace();
+            }
 
             if (procEntry.getType().getResultType().equals(Type.VOID_TYPE)) {
                 staticError(node.getId() + " should be a function", node.getLocation());

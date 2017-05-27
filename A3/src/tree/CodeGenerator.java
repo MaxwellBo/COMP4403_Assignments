@@ -123,6 +123,11 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         beginGen( "Call" );
         SymEntry.ProcedureEntry proc = node.getEntry();
         Code code = new Code();
+
+        // For each value parameter (in reverse order of their declaration),
+        // load the value of the corresponding actual parameter expression onto the stack.
+        code.append(genParamsInReverse(node.getActualParams()));
+
         /* Generate the call instruction. The second parameter is the
          * procedure's symbol table entry. The actual address is resolved 
          * at load time.
@@ -187,7 +192,8 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     /** Generate code for a "return" statement */
     public Code visitReturnNode(StatementNode.ReturnNode node) {
         beginGen("Return");
-        Code code = new Code();
+        // For a function return, after evaluating the return expression, assign it to the function result location.
+        Code code = node.getCondition().genCode(this);
         endGen("Return");
         return code;
     }
@@ -310,6 +316,16 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         endGen( "ArgsInReverse" );
         return code;
     }
+    /** Generate actual parameters in reverse order */
+    private Code genParamsInReverse( List<ExpNode> params ) {
+        beginGen( "ParamsInReverse" );
+        Code code = new Code();
+        for( int i = params.size()-1; 0 <= i; i-- ) {
+            code.append( params.get(i).genCode( this ) );
+        }
+        endGen( "ParamsInReverse" );
+        return code;
+    }
     /** Generate code to dereference an RValue. */
     public Code visitDereferenceNode( ExpNode.DereferenceNode node ) {
         beginGen( "Dereference" );
@@ -356,7 +372,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     /** Generate code for actual parameters to a function or procedure */
     public Code visitActualParamNode(ExpNode.ActualParamNode node) {
         beginGen( "ActualParam" );
-        Code code = new Code();
+        Code code = node.getCondition().genCode(this);
         endGen( "ActualParam" );
         return code;
     }
@@ -364,7 +380,31 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     /** Generate code for a function call */
     public Code visitFunctionNode(ExpNode.FunctionNode node) {
         beginGen( "Function" );
+        SymEntry.ProcedureEntry proc = node.getEntry();
         Code code = new Code();
+        // For a function, allocate space on the stack for the function result.
+        code.genAllocStack(proc.getType().getResultType().getSpace());
+
+        // For each value parameter (in reverse order of their declaration),
+        // load the value of the corresponding actual parameter expression onto the stack.
+        Code params = new Code();
+        params.append(genParamsInReverse(node.getActualParams()));
+        code.append(params);
+
+        // Call the procedure (genCall may be of use for both the previous step and this step).
+        code.genCall( staticLevel - proc.getLevel(), proc );
+
+        // Within the procedure, references to the formal parameters may be accomplished
+        // by using negative offsets from the current frame pointer
+        // Within the procedure, formal value parameters look just like local variables (hint, hint)
+        // - the only difference is that their addresses have negative offsets.
+
+        // After procedure exit, deallocate the space used by the actual parameters
+        // (but not the function result) by using the DEALLOC_STACK instruction,
+        // which expects a value on top of the stack indicating how many top of stack locations to discard,
+        // i.e., the size of all the actual parameters.
+        code.genDeallocStack(params.size());
+
         endGen( "Function" );
         return code;
     }
