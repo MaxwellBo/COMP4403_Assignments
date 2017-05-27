@@ -351,7 +351,6 @@ public abstract class ExpNode {
 
     /** Tree node representing an actual parameter */
     public static class ActualParamNode extends ExpNode {
-        /** TODO */
         private String id;
         private ExpNode condition;
 
@@ -383,9 +382,8 @@ public abstract class ExpNode {
         }
     }
 
-    /** Tree node representing a TODO */
+    /** Tree node representing a function call */
     public static class FunctionNode extends ExpNode {
-        /** TODO */
         private String id;
         private SymEntry.ProcedureEntry procEntry;
         private List<ExpNode> actualParams;
@@ -422,7 +420,8 @@ public abstract class ExpNode {
         }
         @Override
         public String toString() {
-            return "TODO";
+            String s = id;
+            return s + ")";
         }
     }
 

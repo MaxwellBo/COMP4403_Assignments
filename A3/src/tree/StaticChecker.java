@@ -219,7 +219,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         node.getLoopStmt().accept( this );  // Check the body of the loop
         endCheck("While");
     }
-    /** TODO */
+    /** Return statement node */
     public void visitReturnNode(StatementNode.ReturnNode node) {
         beginCheck("Return");
         node.setCondition(node.getCondition().transform(this));
@@ -412,7 +412,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         return node;
     }
 
-    /** TODO */
+    /** Actual Parameter node */
     public ExpNode visitActualParamNode(ExpNode.ActualParamNode node) {
         beginCheck("ActualParam");
         node.setCondition(node.getCondition().transform(this));
@@ -420,7 +420,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
         return node;
     }
 
-    /** TODO */
+    /** Function call node */
     public ExpNode visitFunctionNode(ExpNode.FunctionNode node) {
         beginCheck("Function");
         SymEntry.ProcedureEntry procEntry = null;

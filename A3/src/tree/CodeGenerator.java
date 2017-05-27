@@ -184,7 +184,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         return code;
     }
 
-    /** TODO */
+    /** Generate code for a "return" statement */
     public Code visitReturnNode(StatementNode.ReturnNode node) {
         beginGen("Return");
         Code code = new Code();
@@ -353,7 +353,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         return code;
     }
 
-    /** TODO */
+    /** Generate code for actual parameters to a function or procedure */
     public Code visitActualParamNode(ExpNode.ActualParamNode node) {
         beginGen( "ActualParam" );
         Code code = new Code();
@@ -361,7 +361,7 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         return code;
     }
 
-    /** TODO */
+    /** Generate code for a function call */
     public Code visitFunctionNode(ExpNode.FunctionNode node) {
         beginGen( "Function" );
         Code code = new Code();
