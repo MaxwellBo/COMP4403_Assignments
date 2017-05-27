@@ -149,6 +149,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                 offset += p.getSpace();
             }
 
+            // XXX: INVERSE OF FUNCTION NODE DO NOT REMOVE IN COPY PASTE XXX
             if (!procEntry.getType().getResultType().equals(Type.VOID_TYPE)) {
                 staticError("cannot call a function from a call statement", node.getLocation());
             }
@@ -176,14 +177,26 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                 }
             }
 
+            List<ExpNode> withDefaults = new ArrayList<>();
+
             for (SymEntry.ParamEntry fp : idToFormalParam.values()) {
                 boolean hasNoDefault = fp.getDefaultExp() == null;
                 boolean notFilled = !idToActualParam.containsKey(fp.getIdent());
 
                 if (hasNoDefault && notFilled) {
                     staticError("no value for parameter " + fp.getIdent(), node.getLocation());
+                } else if (notFilled) {
+                    // HACK
+                    ExpNode.ActualParamNode fakeActual =
+                            new ExpNode.ActualParamNode(fp.getLocation(), fp.getIdent(), fp.getDefaultExp());
+                    fakeActual.transform(this);
+                    withDefaults.add(fakeActual);
+                } else {
+                    withDefaults.add(idToActualParam.get(fp.getIdent()));
                 }
             }
+
+            node.setActualParams(withDefaults);
 
         } else {
             staticError( "Procedure identifier required", node.getLocation() );
@@ -448,6 +461,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                 offset += p.getSpace();
             }
 
+            // XXX: INVERSE OF CALL NODE DO NOT REMOVE IN COPY PASTE XXX
             if (procEntry.getType().getResultType().equals(Type.VOID_TYPE)) {
                 staticError(node.getId() + " should be a function", node.getLocation());
             }
@@ -475,14 +489,26 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                 }
             }
 
+            List<ExpNode> withDefaults = new ArrayList<>();
+
             for (SymEntry.ParamEntry fp : idToFormalParam.values()) {
                 boolean hasNoDefault = fp.getDefaultExp() == null;
                 boolean notFilled = !idToActualParam.containsKey(fp.getIdent());
 
                 if (hasNoDefault && notFilled) {
                     staticError("no value for parameter " + fp.getIdent(), node.getLocation());
+                } else if (notFilled) {
+                    // HACK
+                    ExpNode.ActualParamNode fakeActual =
+                            new ExpNode.ActualParamNode(fp.getLocation(), fp.getIdent(), fp.getDefaultExp());
+                    fakeActual.transform(this);
+                    withDefaults.add(fakeActual);
+                } else {
+                    withDefaults.add(idToActualParam.get(fp.getIdent()));
                 }
             }
+
+            node.setActualParams(withDefaults);
 
         } else {
             staticError( node.getId() + " should be a function", node.getLocation() );
