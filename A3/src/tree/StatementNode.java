@@ -235,16 +235,23 @@ public abstract class StatementNode {
     /** Tree node representing a "return" statement. */
     public static class ReturnNode extends StatementNode {
         private ExpNode condition;
+        private SymEntry.ProcedureEntry owner;
 
         public ReturnNode( Location loc, ExpNode condition ) {
             super( loc );
             this.condition = condition;
         }
-        ExpNode getCondition() {
+        public ExpNode getCondition() {
             return condition;
         }
-        void setCondition(ExpNode condition) {
+        public void setCondition(ExpNode condition) {
             this.condition = condition;
+        }
+        public SymEntry.ProcedureEntry getOwnerEntry() {
+            return owner;
+        }
+        public void setOwnerEntry(SymEntry.ProcedureEntry owner) {
+            this.owner = owner;
         }
         @Override
         public void accept( StatementVisitor visitor ) {

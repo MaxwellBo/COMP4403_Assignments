@@ -131,11 +131,6 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         // Call the procedure (genCall may be of use for both the previous step and this step).
         code.genCall( staticLevel - proc.getLevel(), proc );
 
-        // Within the procedure, references to the formal parameters may be accomplished
-        // by using negative offsets from the current frame pointer
-        // Within the procedure, formal value parameters look just like local variables (hint, hint)
-        // - the only difference is that their addresses have negative offsets.
-
         // After procedure exit, deallocate the space used by the actual parameters
         // (but not the function result) by using the DEALLOC_STACK instruction,
         // which expects a value on top of the stack indicating how many top of stack locations to discard,
@@ -205,7 +200,11 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
     public Code visitReturnNode(StatementNode.ReturnNode node) {
         beginGen("Return");
         // For a function return, after evaluating the return expression, assign it to the function result location.
+        int paramsSize = node.getOwnerEntry().getType().getFormalParams().size();
+
         Code code = node.getCondition().genCode(this);
+        code.genLoadConstant(-1 * paramsSize - 1);
+        code.genStore(node.getCondition().getType());
         endGen("Return");
         return code;
     }
@@ -403,11 +402,6 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
 
         // Call the procedure (genCall may be of use for both the previous step and this step).
         code.genCall( staticLevel - proc.getLevel(), proc );
-
-        // Within the procedure, references to the formal parameters may be accomplished
-        // by using negative offsets from the current frame pointer
-        // Within the procedure, formal value parameters look just like local variables (hint, hint)
-        // - the only difference is that their addresses have negative offsets.
 
         // After procedure exit, deallocate the space used by the actual parameters
         // (but not the function result) by using the DEALLOC_STACK instruction,

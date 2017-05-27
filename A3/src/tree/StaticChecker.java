@@ -143,6 +143,10 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             procEntry = (SymEntry.ProcedureEntry)entry;
             node.setEntry( procEntry );
 
+            // Within the procedure, references to the formal parameters may be accomplished
+            // by using negative offsets from the current frame pointer
+            // Within the procedure, formal value parameters look just like local variables (hint, hint)
+            // - the only difference is that their addresses have negative offsets.
             int offset = -1;
             for (SymEntry.ParamEntry p : procEntry.getType().getFormalParams()) {
                 p.setOffset(offset);
@@ -192,6 +196,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                     fakeActual.transform(this);
                     withDefaults.add(fakeActual);
                 } else {
+                    // This preserves declaration order
                     withDefaults.add(idToActualParam.get(fp.getIdent()));
                 }
             }
@@ -242,6 +247,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
     public void visitReturnNode(StatementNode.ReturnNode node) {
         beginCheck("Return");
         node.setCondition(node.getCondition().transform(this));
+        node.setOwnerEntry(currentScope.getOwnerEntry());
 
         Type resultType = currentScope.getOwnerEntry().getType().getResultType();
 
@@ -455,6 +461,10 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
             procEntry = (SymEntry.ProcedureEntry)entry;
             node.setEntry( procEntry );
 
+            // Within the procedure, references to the formal parameters may be accomplished
+            // by using negative offsets from the current frame pointer
+            // Within the procedure, formal value parameters look just like local variables (hint, hint)
+            // - the only difference is that their addresses have negative offsets.
             int offset = -1;
             for (SymEntry.ParamEntry p : procEntry.getType().getFormalParams()) {
                 p.setOffset(offset);
@@ -504,6 +514,7 @@ public class StaticChecker implements DeclVisitor, StatementVisitor,
                     fakeActual.transform(this);
                     withDefaults.add(fakeActual);
                 } else {
+                    // This preserves declaration order
                     withDefaults.add(idToActualParam.get(fp.getIdent()));
                 }
             }
