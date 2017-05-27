@@ -128,11 +128,23 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         // load the value of the corresponding actual parameter expression onto the stack.
         code.append(genParamsInReverse(node.getActualParams()));
 
-        /* Generate the call instruction. The second parameter is the
-         * procedure's symbol table entry. The actual address is resolved 
-         * at load time.
-         */
+        // Call the procedure (genCall may be of use for both the previous step and this step).
         code.genCall( staticLevel - proc.getLevel(), proc );
+
+        // Within the procedure, references to the formal parameters may be accomplished
+        // by using negative offsets from the current frame pointer
+        // Within the procedure, formal value parameters look just like local variables (hint, hint)
+        // - the only difference is that their addresses have negative offsets.
+
+        // After procedure exit, deallocate the space used by the actual parameters
+        // (but not the function result) by using the DEALLOC_STACK instruction,
+        // which expects a value on top of the stack indicating how many top of stack locations to discard,
+        // i.e., the size of all the actual parameters.
+        int space = 0;
+        for (ExpNode n : node.getActualParams()) { space += n.getType().getSpace(); }
+
+        code.genDeallocStack(space);
+
         endGen( "Call" );
         return code;
     }
@@ -382,14 +394,12 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         beginGen( "Function" );
         SymEntry.ProcedureEntry proc = node.getEntry();
         Code code = new Code();
-        // For a function, allocate space on the stack for the function result.
+        // XXX: For a function, allocate space on the stack for the function result.
         code.genAllocStack(proc.getType().getResultType().getSpace());
 
         // For each value parameter (in reverse order of their declaration),
         // load the value of the corresponding actual parameter expression onto the stack.
-        Code params = new Code();
-        params.append(genParamsInReverse(node.getActualParams()));
-        code.append(params);
+        code.append(genParamsInReverse(node.getActualParams()));
 
         // Call the procedure (genCall may be of use for both the previous step and this step).
         code.genCall( staticLevel - proc.getLevel(), proc );
@@ -403,7 +413,10 @@ public class CodeGenerator implements DeclVisitor, StatementTransform<Code>,
         // (but not the function result) by using the DEALLOC_STACK instruction,
         // which expects a value on top of the stack indicating how many top of stack locations to discard,
         // i.e., the size of all the actual parameters.
-        code.genDeallocStack(params.size());
+        int space = 0;
+        for (ExpNode n : node.getActualParams()) { space += n.getType().getSpace(); }
+
+        code.genDeallocStack(space);
 
         endGen( "Function" );
         return code;
